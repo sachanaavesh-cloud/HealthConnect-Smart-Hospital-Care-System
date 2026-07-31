@@ -1,5 +1,5 @@
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
+import java.util.*;
 
 public class Dashboard {
 
@@ -65,9 +65,6 @@ public class Dashboard {
             }
             rs3.close();
             ps3.close();
-
-            // Display live queue status for next appointment
-            p.displayQueueStatus();
         }
         System.out.println("========================================================");
     }

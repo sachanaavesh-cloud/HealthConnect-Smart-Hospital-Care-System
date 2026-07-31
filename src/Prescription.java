@@ -1,6 +1,5 @@
-import java.sql.CallableStatement;
-import java.sql.ResultSet;
-import java.util.Scanner;
+import java.sql.*;
+import java.util.*;
 
 public class Prescription {
     String medicine = "";
@@ -101,8 +100,38 @@ public class Prescription {
             System.out.println("👤 Patient ID      : " + rs.getInt("patient_id"));
             System.out.println("👨‍⚕️ Doctor ID       : " + rs.getInt("doctor_id"));
             System.out.println("🔬 Diagnosis      : " + rs.getString("diagnosis"));
-            System.out.println("📝 Notes          : " + rs.getString("notes"));
+            System.out.println("📝 Notes          : " + (rs.getString("notes") != null ? rs.getString("notes") : "-"));
             System.out.println("📅 Created Date   : " + rs.getString("created_date"));
+
+            PreparedStatement psMeds = DBConnection.conn.prepareStatement(
+                    "SELECT medicine_name, dosage, morning, afternoon, night, days FROM prescription_medicines WHERE prescription_id = ?");
+            psMeds.setInt(1, this.loadedPrescriptionId);
+            ResultSet rsMeds = psMeds.executeQuery();
+            System.out.println("💊 Prescribed Medicines:");
+            boolean hasMeds = false;
+            while (rsMeds.next()) {
+                hasMeds = true;
+                String medName = rsMeds.getString("medicine_name");
+                String dosageStr = rsMeds.getString("dosage");
+                boolean m = rsMeds.getBoolean("morning");
+                boolean a = rsMeds.getBoolean("afternoon");
+                boolean n = rsMeds.getBoolean("night");
+                int days = rsMeds.getInt("days");
+
+                StringBuilder sched = new StringBuilder();
+                if (m) sched.append("☀️ Morning ");
+                if (a) sched.append("🌤️ Afternoon ");
+                if (n) sched.append("🌙 Night ");
+                if (sched.length() == 0) sched.append("As Needed");
+
+                System.out.printf("      • %-20s | Dosage: %-10s | Schedule: %-30s | Duration: %d days\n", medName, dosageStr, sched.toString().trim(), days);
+            }
+            if (!hasMeds) {
+                System.out.println("      (No specific medicines listed)");
+            }
+            rsMeds.close();
+            psMeds.close();
+            System.out.println("=========================================================================================");
         } else {
             System.out.println("📭 Prescription not found.");
         }

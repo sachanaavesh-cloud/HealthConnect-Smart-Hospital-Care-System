@@ -1,8 +1,5 @@
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Types;
-import java.util.Scanner;
+import java.sql.*;
+import java.util.*;
 
 public class Billing {
     int billId = 0;
@@ -113,33 +110,52 @@ public class Billing {
             loggedInPatientId = ((Patient) Main.loggedInUser).getPatientId();
         }
 
-        // Show patient's own bills first
+        // Show patient's pending bills only
         if (loggedInPatientId > 0) {
             if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
                 DBConnection.initialize();
             }
-            PreparedStatement ps = DBConnection.conn.prepareStatement("SELECT * FROM payments WHERE patient_id = ?");
-            ps.setInt(1, loggedInPatientId);
-            ResultSet rs = ps.executeQuery();
-            System.out.println("\n💳 --- Your Bills ---");
+            // Check total count of bills for this patient
+            PreparedStatement psTotal = DBConnection.conn.prepareStatement("SELECT COUNT(*) FROM payments WHERE patient_id = ?");
+            psTotal.setInt(1, loggedInPatientId);
+            ResultSet rsTotal = psTotal.executeQuery();
+            int totalCount = 0;
+            if (rsTotal.next()) {
+                totalCount = rsTotal.getInt(1);
+            }
+            rsTotal.close();
+            psTotal.close();
+
+            PreparedStatement psPending = DBConnection.conn.prepareStatement("SELECT * FROM payments WHERE patient_id = ? AND status = 'Pending'");
+            psPending.setInt(1, loggedInPatientId);
+            ResultSet rsPending = psPending.executeQuery();
+
+            boolean hasPending = false;
+            System.out.println("\n💳 --- Remaining Bills to Pay ---");
             System.out.printf("%-10s | %-15s | %-10s | %-12s | %-10s\n", "Bill ID", "Appointment ID", "Amount", "Mode", "Status");
             System.out.println("------------------------------------------------------------------");
-            boolean found = false;
-            while (rs.next()) {
-                found = true;
+
+            while (rsPending.next()) {
+                hasPending = true;
                 System.out.printf("%-10d | %-15d | Rs. %-8.2f | %-12s | %-10s\n",
-                        rs.getInt("payment_id"),
-                        rs.getInt("appointment_id"),
-                        rs.getDouble("amount"),
-                        rs.getString("payment_mode"),
-                        rs.getString("status")
+                        rsPending.getInt("payment_id"),
+                        rsPending.getInt("appointment_id"),
+                        rsPending.getDouble("amount"),
+                        rsPending.getString("payment_mode"),
+                        rsPending.getString("status")
                 );
             }
-            if (!found) {
-                System.out.println("📭 No bills found for you.");
+            rsPending.close();
+            psPending.close();
+
+            if (!hasPending) {
+                if (totalCount > 0) {
+                    System.out.println("🎉 All bills are paid! You have no remaining bills to pay.");
+                } else {
+                    System.out.println("📭 No bills found for you.");
+                }
+                return;
             }
-            rs.close();
-            ps.close();
         }
 
         int bId = 0;

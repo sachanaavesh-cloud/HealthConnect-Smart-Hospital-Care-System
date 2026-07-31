@@ -1,5 +1,5 @@
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
+import java.util.*;
 
 public class Pharmacy {
     String pharmacyName = "HealthConnect Smart Government Pharmacy";

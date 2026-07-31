@@ -1,7 +1,5 @@
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.Scanner;
+import java.sql.*;
+import java.util.*;
 
 public class Doctor extends User {
     String specialization = "";
@@ -51,10 +49,11 @@ public class Doctor extends User {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
         }
-        CallableStatement stmt = DBConnection.conn.prepareCall("{call GetDoctorAppointments(?)}");
-        stmt.setInt(1, doctorId);
-        ResultSet rs = stmt.executeQuery();
-        System.out.println("\n📅 --- Today's Appointments ---");
+        PreparedStatement ps = DBConnection.conn.prepareStatement(
+                "SELECT * FROM appointments WHERE doctor_id = ? AND appointment_date >= CURDATE() AND status != 'Cancelled' ORDER BY appointment_date ASC, appointment_time ASC");
+        ps.setInt(1, doctorId);
+        ResultSet rs = ps.executeQuery();
+        System.out.println("\n📅 --- Scheduled Appointments (Today & Upcoming) ---");
         boolean found = false;
         while (rs.next()) {
             found = true;
@@ -64,15 +63,15 @@ public class Doctor extends User {
             System.out.println("⏰ Time          : " + rs.getString("appointment_time"));
             System.out.println("🚦 Status        : " + rs.getString("status"));
             System.out.println("🎟️ Token Number  : " + rs.getInt("token_number"));
-            System.out.println("🚨 Priority      : " + rs.getString("priority"));
-            System.out.println("💬 Remarks       : " + rs.getString("remarks"));
+            System.out.println("🚨 Priority      : " + (rs.getString("priority") != null ? rs.getString("priority") : "-"));
+            System.out.println("💬 Remarks       : " + (rs.getString("remarks") != null ? rs.getString("remarks") : "-"));
             System.out.println("----------------------------------------");
         }
         if (!found) {
-            System.out.println("📭 No appointments scheduled.");
+            System.out.println("📭 No upcoming or today's appointments scheduled.");
         }
         rs.close();
-        stmt.close();
+        ps.close();
     }
 
     public void createReport() throws Exception {
@@ -402,40 +401,5 @@ public class Doctor extends User {
             rsCheck.close();
             psCheck.close();
         }
-    }
-
-    public void showNextAppointment() throws Exception {
-        int doctorId = getDoctorId();
-        if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
-            DBConnection.initialize();
-        }
-        PreparedStatement ps = DBConnection.conn.prepareStatement(
-                "SELECT a.appointment_id, a.patient_id, CONCAT(p.first_name, ' ', p.last_name) AS patient_name, " +
-                        "a.appointment_date, a.appointment_time, a.status, a.token_number, a.priority, a.remarks " +
-                        "FROM appointments a " +
-                        "JOIN patients p ON a.patient_id = p.patient_id " +
-                        "WHERE a.doctor_id = ? AND a.status = 'Booked' AND a.appointment_date >= CURDATE() " +
-                        "ORDER BY a.appointment_date ASC, a.token_number ASC"
-        );
-        ps.setInt(1, doctorId);
-        ResultSet rs = ps.executeQuery();
-        System.out.println("\n📅 --- Next / Upcoming Appointments (Sorted by Token Number) ---");
-        boolean found = false;
-        while (rs.next()) {
-            found = true;
-            System.out.println("🎟️ Token Number  : " + rs.getInt("token_number"));
-            System.out.println("🔑 Appointment ID: " + rs.getInt("appointment_id"));
-            System.out.println("👤 Patient Name  : " + rs.getString("patient_name") + " (ID: " + rs.getInt("patient_id") + ")");
-            System.out.println("📅 Date          : " + rs.getString("appointment_date"));
-            System.out.println("⏰ Time          : " + rs.getString("appointment_time"));
-            System.out.println("🚨 Priority      : " + rs.getString("priority"));
-            System.out.println("💬 Remarks       : " + rs.getString("remarks"));
-            System.out.println("----------------------------------------------------------------");
-        }
-        if (!found) {
-            System.out.println("📭 No upcoming booked appointments found.");
-        }
-        rs.close();
-        ps.close();
     }
 }

@@ -1,8 +1,5 @@
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.Scanner;
+import java.sql.*;
+import java.util.*;
 
 public class Admin extends User {
     String designation = "";
@@ -256,27 +253,104 @@ public class Admin extends User {
         ResultSet rs = ps.executeQuery();
         if (rs.next()) {
             userId = rs.getInt("user_id");
+        } else {
+            rs.close();
+            ps.close();
+            System.out.println("❌ Doctor ID not found.");
+            return;
         }
         rs.close();
         ps.close();
 
         DBConnection.conn.setAutoCommit(false);
         try {
-            // Delete from doctors
+            // 1. Delete payments associated with doctor's appointments
+            PreparedStatement psPay = DBConnection.conn.prepareStatement("DELETE FROM payments WHERE appointment_id IN (SELECT appointment_id FROM appointments WHERE doctor_id = ?)");
+            psPay.setInt(1, doctorId);
+            psPay.executeUpdate();
+            psPay.close();
+
+            // 2. Delete tokens associated with doctor's appointments
+            PreparedStatement psTokens = DBConnection.conn.prepareStatement("DELETE FROM tokens WHERE appointment_id IN (SELECT appointment_id FROM appointments WHERE doctor_id = ?)");
+            psTokens.setInt(1, doctorId);
+            psTokens.executeUpdate();
+            psTokens.close();
+
+            // 3. Delete prescription_medicines associated with doctor's prescriptions
+            PreparedStatement psPM = DBConnection.conn.prepareStatement("DELETE FROM prescription_medicines WHERE prescription_id IN (SELECT prescription_id FROM prescriptions WHERE doctor_id = ? OR visit_id IN (SELECT appointment_id FROM appointments WHERE doctor_id = ?))");
+            psPM.setInt(1, doctorId);
+            psPM.setInt(2, doctorId);
+            psPM.executeUpdate();
+            psPM.close();
+
+            // 4. Delete prescriptions associated with doctor
+            PreparedStatement psPresc = DBConnection.conn.prepareStatement("DELETE FROM prescriptions WHERE doctor_id = ? OR visit_id IN (SELECT appointment_id FROM appointments WHERE doctor_id = ?)");
+            psPresc.setInt(1, doctorId);
+            psPresc.setInt(2, doctorId);
+            psPresc.executeUpdate();
+            psPresc.close();
+
+            // 5. Delete lab_tests associated with doctor
+            PreparedStatement psLab = DBConnection.conn.prepareStatement("DELETE FROM lab_tests WHERE doctor_id = ?");
+            psLab.setInt(1, doctorId);
+            psLab.executeUpdate();
+            psLab.close();
+
+            // 6. Delete follow_up associated with doctor
+            PreparedStatement psFollow = DBConnection.conn.prepareStatement("DELETE FROM follow_up WHERE doctor_id = ?");
+            psFollow.setInt(1, doctorId);
+            psFollow.executeUpdate();
+            psFollow.close();
+
+            // 7. Delete diet_plan associated with doctor
+            PreparedStatement psDiet = DBConnection.conn.prepareStatement("DELETE FROM diet_plan WHERE doctor_id = ?");
+            psDiet.setInt(1, doctorId);
+            psDiet.executeUpdate();
+            psDiet.close();
+
+            // 8. Delete feedback associated with doctor
+            PreparedStatement psFeedback = DBConnection.conn.prepareStatement("DELETE FROM feedback WHERE doctor_id = ?");
+            psFeedback.setInt(1, doctorId);
+            psFeedback.executeUpdate();
+            psFeedback.close();
+
+            // 9. Delete queue associated with doctor
+            PreparedStatement psQueue = DBConnection.conn.prepareStatement("DELETE FROM queue WHERE doctor_id = ?");
+            psQueue.setInt(1, doctorId);
+            psQueue.executeUpdate();
+            psQueue.close();
+
+            // 10. Delete appointments associated with doctor
+            PreparedStatement psApp = DBConnection.conn.prepareStatement("DELETE FROM appointments WHERE doctor_id = ?");
+            psApp.setInt(1, doctorId);
+            psApp.executeUpdate();
+            psApp.close();
+
+            // 11. Delete from doctors
             PreparedStatement ps1 = DBConnection.conn.prepareStatement("DELETE FROM doctors WHERE doctor_id = ?");
             ps1.setInt(1, doctorId);
             ps1.executeUpdate();
             ps1.close();
 
-            // Delete from users
+            // 12. Delete user's login history, audit log, and user account
             if (userId > 0) {
+                PreparedStatement psLH = DBConnection.conn.prepareStatement("DELETE FROM login_history WHERE user_id = ?");
+                psLH.setInt(1, userId);
+                psLH.executeUpdate();
+                psLH.close();
+
+                PreparedStatement psAL = DBConnection.conn.prepareStatement("DELETE FROM audit_log WHERE user_id = ?");
+                psAL.setInt(1, userId);
+                psAL.executeUpdate();
+                psAL.close();
+
                 PreparedStatement ps2 = DBConnection.conn.prepareStatement("DELETE FROM users WHERE user_id = ?");
                 ps2.setInt(1, userId);
                 ps2.executeUpdate();
                 ps2.close();
             }
             DBConnection.conn.commit();
-            System.out.println("🗑️ Doctor and their user account removed successfully.");
+            System.out.println("🗑️ Doctor, associated appointments, payments, prescriptions, and user account removed successfully.");
             Main.logActivity(this.userId, "DELETE", "doctors");
         } catch (Exception ex) {
             DBConnection.conn.rollback();
@@ -521,20 +595,21 @@ public class Admin extends User {
             if (patientId > 0) {
                 // Update other patient attributes directly
                 PreparedStatement ps1 = DBConnection.conn.prepareStatement(
-                        "UPDATE patients SET gender = ?, dob = ?, blood_group = ?, address = ?, city = ?, state = ?, pincode = ?, aadhaar = ?, abha_id = ?, height = ?, weight = ?, emergency_contact = ? WHERE patient_id = ?");
-                ps1.setString(1, gender);
-                ps1.setString(2, dob);
-                ps1.setString(3, blood);
-                ps1.setString(4, address);
-                ps1.setString(5, city);
-                ps1.setString(6, state);
-                ps1.setString(7, pin);
-                ps1.setString(8, aadhaar);
-                ps1.setString(9, abha);
-                ps1.setDouble(10, height);
-                ps1.setDouble(11, weight);
-                ps1.setString(12, emergency);
-                ps1.setInt(13, patientId);
+                        "UPDATE patients SET email = ?, gender = ?, dob = ?, blood_group = ?, address = ?, city = ?, state = ?, pincode = ?, aadhaar = ?, abha_id = ?, height = ?, weight = ?, emergency_contact = ? WHERE patient_id = ?");
+                ps1.setString(1, email);
+                ps1.setString(2, gender);
+                ps1.setString(3, dob);
+                ps1.setString(4, blood);
+                ps1.setString(5, address);
+                ps1.setString(6, city);
+                ps1.setString(7, state);
+                ps1.setString(8, pin);
+                ps1.setString(9, aadhaar);
+                ps1.setString(10, abha);
+                ps1.setDouble(11, height);
+                ps1.setDouble(12, weight);
+                ps1.setString(13, emergency);
+                ps1.setInt(14, patientId);
                 ps1.executeUpdate();
                 ps1.close();
 
@@ -599,18 +674,120 @@ public class Admin extends User {
         ResultSet rs = ps.executeQuery();
         if (rs.next()) {
             userId = rs.getInt("user_id");
+        } else {
+            rs.close();
+            ps.close();
+            System.out.println("❌ Patient ID not found.");
+            return;
         }
         rs.close();
         ps.close();
 
         DBConnection.conn.setAutoCommit(false);
         try {
+            // Delete payments
+            PreparedStatement psPay = DBConnection.conn.prepareStatement("DELETE FROM payments WHERE patient_id = ? OR appointment_id IN (SELECT appointment_id FROM appointments WHERE patient_id = ?)");
+            psPay.setInt(1, patientId);
+            psPay.setInt(2, patientId);
+            psPay.executeUpdate();
+            psPay.close();
+
+            // Delete tokens
+            PreparedStatement psTok = DBConnection.conn.prepareStatement("DELETE FROM tokens WHERE appointment_id IN (SELECT appointment_id FROM appointments WHERE patient_id = ?)");
+            psTok.setInt(1, patientId);
+            psTok.executeUpdate();
+            psTok.close();
+
+            // Delete prescription medicines
+            PreparedStatement psPM = DBConnection.conn.prepareStatement("DELETE FROM prescription_medicines WHERE prescription_id IN (SELECT prescription_id FROM prescriptions WHERE patient_id = ?)");
+            psPM.setInt(1, patientId);
+            psPM.executeUpdate();
+            psPM.close();
+
+            // Delete prescriptions
+            PreparedStatement psPresc = DBConnection.conn.prepareStatement("DELETE FROM prescriptions WHERE patient_id = ?");
+            psPresc.setInt(1, patientId);
+            psPresc.executeUpdate();
+            psPresc.close();
+
+            // Delete lab tests
+            PreparedStatement psLab = DBConnection.conn.prepareStatement("DELETE FROM lab_tests WHERE patient_id = ?");
+            psLab.setInt(1, patientId);
+            psLab.executeUpdate();
+            psLab.close();
+
+            // Delete follow up
+            PreparedStatement psFol = DBConnection.conn.prepareStatement("DELETE FROM follow_up WHERE patient_id = ?");
+            psFol.setInt(1, patientId);
+            psFol.executeUpdate();
+            psFol.close();
+
+            // Delete diet plan
+            PreparedStatement psDiet = DBConnection.conn.prepareStatement("DELETE FROM diet_plan WHERE patient_id = ?");
+            psDiet.setInt(1, patientId);
+            psDiet.executeUpdate();
+            psDiet.close();
+
+            // Delete feedback
+            PreparedStatement psFb = DBConnection.conn.prepareStatement("DELETE FROM feedback WHERE patient_id = ?");
+            psFb.setInt(1, patientId);
+            psFb.executeUpdate();
+            psFb.close();
+
+            // Delete medical history
+            PreparedStatement psMH = DBConnection.conn.prepareStatement("DELETE FROM medical_history WHERE patient_id = ?");
+            psMH.setInt(1, patientId);
+            psMH.executeUpdate();
+            psMH.close();
+
+            // Delete vaccinations
+            PreparedStatement psVac = DBConnection.conn.prepareStatement("DELETE FROM vaccinations WHERE patient_id = ?");
+            psVac.setInt(1, patientId);
+            psVac.executeUpdate();
+            psVac.close();
+
+            // Delete reminders
+            PreparedStatement psRem = DBConnection.conn.prepareStatement("DELETE FROM reminders WHERE patient_id = ?");
+            psRem.setInt(1, patientId);
+            psRem.executeUpdate();
+            psRem.close();
+
+            // Delete medicine_issue
+            PreparedStatement psMed = DBConnection.conn.prepareStatement("DELETE FROM medicine_issue WHERE patient_id = ?");
+            psMed.setInt(1, patientId);
+            psMed.executeUpdate();
+            psMed.close();
+
+            // Delete queue
+            PreparedStatement psQ = DBConnection.conn.prepareStatement("DELETE FROM queue WHERE patient_id = ?");
+            psQ.setInt(1, patientId);
+            psQ.executeUpdate();
+            psQ.close();
+
+            // Delete appointments
+            PreparedStatement psApp = DBConnection.conn.prepareStatement("DELETE FROM appointments WHERE patient_id = ?");
+            psApp.setInt(1, patientId);
+            psApp.executeUpdate();
+            psApp.close();
+
+            // Delete patients
             PreparedStatement ps1 = DBConnection.conn.prepareStatement("DELETE FROM patients WHERE patient_id = ?");
             ps1.setInt(1, patientId);
             ps1.executeUpdate();
             ps1.close();
 
+            // Delete user's login history, audit log, and user account
             if (userId > 0) {
+                PreparedStatement psLH = DBConnection.conn.prepareStatement("DELETE FROM login_history WHERE user_id = ?");
+                psLH.setInt(1, userId);
+                psLH.executeUpdate();
+                psLH.close();
+
+                PreparedStatement psAL = DBConnection.conn.prepareStatement("DELETE FROM audit_log WHERE user_id = ?");
+                psAL.setInt(1, userId);
+                psAL.executeUpdate();
+                psAL.close();
+
                 PreparedStatement ps2 = DBConnection.conn.prepareStatement("DELETE FROM users WHERE user_id = ?");
                 ps2.setInt(1, userId);
                 ps2.executeUpdate();

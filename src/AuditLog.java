@@ -1,7 +1,5 @@
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.Scanner;
+import java.sql.*;
+import java.util.*;
 
 public class AuditLog {
     int logId = 0;

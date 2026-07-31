@@ -1,7 +1,5 @@
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.Scanner;
+import java.sql.*;
+import java.util.*;
 
 public class User {
     int userId = 0;
@@ -75,28 +73,6 @@ public class User {
         }
         Scanner sc = new Scanner(System.in);
 
-        String newName = "";
-        while (true) {
-            System.out.print("👤 Enter New Name: ");
-            newName = sc.nextLine().trim();
-            boolean isValid = true;
-            if (newName.isEmpty()) {
-                isValid = false;
-            } else {
-                for (int i = 0; i < newName.length(); i++) {
-                    char ch = newName.charAt(i);
-                    if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == ' ')) {
-                        isValid = false;
-                        break;
-                    }
-                }
-            }
-            if (isValid) {
-                break;
-            }
-            System.out.println("⚠️ Error: Name must contain letters and spaces only.");
-        }
-
         String newPhone = "";
         while (true) {
             System.out.print("📞 Enter New Phone: ");
@@ -146,17 +122,15 @@ public class User {
 
             // Update respective table based on role
             if (this.role.equalsIgnoreCase("Patient")) {
-                PreparedStatement ps1 = DBConnection.conn.prepareStatement("UPDATE patients SET first_name = ?, phone = ? WHERE user_id = ?");
-                ps1.setString(1, newName);
-                ps1.setString(2, newPhone);
-                ps1.setInt(3, this.userId);
+                PreparedStatement ps1 = DBConnection.conn.prepareStatement("UPDATE patients SET phone = ? WHERE user_id = ?");
+                ps1.setString(1, newPhone);
+                ps1.setInt(2, this.userId);
                 ps1.executeUpdate();
                 ps1.close();
             } else if (this.role.equalsIgnoreCase("Doctor")) {
-                PreparedStatement ps2 = DBConnection.conn.prepareStatement("UPDATE doctors SET name = ?, phone = ? WHERE user_id = ?");
-                ps2.setString(1, newName);
-                ps2.setString(2, newPhone);
-                ps2.setInt(3, this.userId);
+                PreparedStatement ps2 = DBConnection.conn.prepareStatement("UPDATE doctors SET phone = ? WHERE user_id = ?");
+                ps2.setString(1, newPhone);
+                ps2.setInt(2, this.userId);
                 ps2.executeUpdate();
                 ps2.close();
             }
@@ -169,7 +143,6 @@ public class User {
             stmt.close();
 
             DBConnection.conn.commit();
-            this.name = newName;
             this.phone = newPhone;
             this.email = newEmail;
             System.out.println("✅ Profile updated successfully.");
@@ -194,6 +167,11 @@ public class User {
 
         if (newPwd.trim().isEmpty()) {
             System.out.println("⚠️ New password cannot be empty.");
+            return;
+        }
+
+        if (oldPwd.equals(newPwd)) {
+            System.out.println("⚠️ New password cannot be the same as your old password. Please choose a different password.");
             return;
         }
 
