@@ -1,6 +1,7 @@
 import java.sql.*;
 import java.util.*;
 
+// Manages patient feedback submission, updates, viewing, deletion, and rating calculation.
 public class Feedback {
     int feedbackId = 0;
     Patient patient = new Patient();
@@ -10,6 +11,7 @@ public class Feedback {
     String comments = "";
     String feedbackDate = "";
 
+    // Submits feedback and rating for a doctor.
     public void submitFeedback() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n⭐ --- Submit Feedback ---");
@@ -77,6 +79,7 @@ public class Feedback {
         Main.logActivity(1, "INSERT", "feedback");
     }
 
+    // Updates the rating of an existing feedback.
     public void updateFeedback() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n⭐ --- Update Feedback ---");
@@ -121,6 +124,7 @@ public class Feedback {
         Main.logActivity(1, "UPDATE", "feedback");
     }
 
+    // Displays all feedback received by a doctor.
     public void viewFeedback() throws Exception {
         Scanner sc = new Scanner(System.in);
 
@@ -162,6 +166,7 @@ public class Feedback {
         stmt.close();
     }
 
+    // Deletes an existing feedback record.
     public void deleteFeedback() throws Exception {
         Scanner sc = new Scanner(System.in);
 
@@ -190,6 +195,7 @@ public class Feedback {
         Main.logActivity(1, "DELETE", "feedback");
     }
 
+    // Calculates and displays the average rating of a doctor.
     public void calculateAverageRating() throws Exception {
         Scanner sc = new Scanner(System.in);
 

@@ -1,6 +1,7 @@
 import java.sql.*;
 import java.util.*;
 
+// Represents an appointment between a patient and a doctor.
 public class Appointment {
     int appointmentId = 0;
     Patient patient = new Patient();
@@ -9,6 +10,7 @@ public class Appointment {
     String appointmentTime = "";
     String status = "";
 
+    // Books a new appointment using the BookAppointment stored procedure.
     public void bookAppointment() throws Exception {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
@@ -23,6 +25,7 @@ public class Appointment {
         System.out.println("🎉 Appointment booked successfully.");
     }
 
+    // Cancels an existing appointment using the CancelAppointment stored procedure.
     public void cancelAppointment() throws Exception {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
@@ -35,6 +38,7 @@ public class Appointment {
         System.out.println("🗑️ Appointment ID " + this.appointmentId + " cancelled.");
     }
 
+    // Updates the appointment status using the UpdateAppointmentStatus stored procedure.
     public void updateStatus() throws Exception {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
@@ -47,6 +51,7 @@ public class Appointment {
         System.out.println("✅ Appointment status updated successfully.");
     }
 
+    // Retrieves and displays complete appointment details from the database.
     public void getDetails() throws Exception {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();

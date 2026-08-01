@@ -6,6 +6,7 @@ public class Doctor extends User {
     int experience = 0;
     boolean available = true;
 
+    // Load doctor's information from database
     public void loadDoctorDetails() throws Exception {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
@@ -24,6 +25,7 @@ public class Doctor extends User {
         ps.close();
     }
 
+    // Return doctor ID using logged-in user ID
     private int getDoctorIdByUserId(int userId) throws Exception {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
@@ -40,10 +42,12 @@ public class Doctor extends User {
         return doctorId;
     }
 
+
     public int getDoctorId() throws Exception {
         return getDoctorIdByUserId(this.userId);
     }
 
+    // Display all scheduled appointments
     public void viewAppointments() throws Exception {
         int doctorId = getDoctorIdByUserId(this.userId);
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
@@ -74,6 +78,7 @@ public class Doctor extends User {
         ps.close();
     }
 
+    // Create a medical report for patient
     public void createReport() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n📝 --- Create Medical Report ---");
@@ -107,6 +112,7 @@ public class Doctor extends User {
         Main.logActivity(this.userId, "INSERT", "medical_history");
     }
 
+    // Create prescription and add medicines
     public void createPrescription() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n💊 --- Create Prescription ---");
@@ -238,10 +244,12 @@ public class Doctor extends User {
         }
     }
 
+    // Generate diet plan
     public void createDietPlan() throws Exception {
         new DietPlan().generateDiet();
     }
 
+    // Send message to patient
     public void replyPatient() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n💬 --- Patient Discussions ---");
@@ -284,10 +292,12 @@ public class Doctor extends User {
         System.out.println("✅ Reply sent successfully.");
     }
 
+    // Show doctor's dashboard
     public void viewDashboard() throws Exception {
         new Dashboard().showDoctorDashboard();
     }
 
+    // Display follow-up requests and reply
     public void showFollowUpsAndReply() throws Exception {
         int doctorId = getDoctorId();
         Scanner sc = new Scanner(System.in);

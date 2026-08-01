@@ -1,9 +1,10 @@
 import java.sql.*;
 import java.util.*;
 
+// Manages patient queue operations, token generation, priority handling, and waiting time.
 public class QueueManager {
-    Queue<Appointment> queue = new PriorityQueue<>();
 
+    // Generates a new queue token.
     public void generateToken() throws Exception {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
@@ -16,6 +17,7 @@ public class QueueManager {
         System.out.println("🎟️ Generated Queue Token Number: " + token);
     }
 
+    // Adds a patient to the doctor's live queue.
     public void addPatient() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n🚦 --- Add Patient to Queue ---");
@@ -59,13 +61,25 @@ public class QueueManager {
             System.out.println("6. Normal");
             System.out.print("👉 Enter choice (1-6): ");
             String choiceOpt = sc.nextLine().trim();
-            if (choiceOpt.equals("1")) { priority = "Emergency"; break; }
-            else if (choiceOpt.equals("2")) { priority = "Pregnant"; break; }
-            else if (choiceOpt.equals("3")) { priority = "Senior Citizen"; break; }
-            else if (choiceOpt.equals("4")) { priority = "Child"; break; }
-            else if (choiceOpt.equals("5")) { priority = "Disabled"; break; }
-            else if (choiceOpt.equals("6")) { priority = "Normal"; break; }
-            else {
+            if (choiceOpt.equals("1")) {
+                priority = "Emergency";
+                break;
+            } else if (choiceOpt.equals("2")) {
+                priority = "Pregnant";
+                break;
+            } else if (choiceOpt.equals("3")) {
+                priority = "Senior Citizen";
+                break;
+            } else if (choiceOpt.equals("4")) {
+                priority = "Child";
+                break;
+            } else if (choiceOpt.equals("5")) {
+                priority = "Disabled";
+                break;
+            } else if (choiceOpt.equals("6")) {
+                priority = "Normal";
+                break;
+            } else {
                 System.out.println("⚠️ Error: Invalid option. Please choose between 1 and 6.");
             }
         }
@@ -119,6 +133,7 @@ public class QueueManager {
         Main.logActivity(1, "INSERT", "queue");
     }
 
+    // Removes a served patient from the queue.
     public void removePatient() throws Exception {
         Scanner sc = new Scanner(System.in);
 
@@ -160,6 +175,7 @@ public class QueueManager {
         Main.logActivity(1, "DELETE", "queue");
     }
 
+    // Displays the active waiting queue.
     public void displayQueue() throws Exception {
         Scanner sc = new Scanner(System.in);
         int doctorId = 0;
@@ -223,6 +239,7 @@ public class QueueManager {
         ps.close();
     }
 
+    // Calculates the estimated waiting time for a patient.
     public void calculateWaitingTime() throws Exception {
         Scanner sc = new Scanner(System.in);
 
@@ -265,6 +282,7 @@ public class QueueManager {
         System.out.println("⏰ Estimated Waiting Time for Queue ID " + queueId + " is: " + time + " minutes.");
     }
 
+    // Gives emergency priority to a patient in the queue.
     public void prioritizeEmergency() throws Exception {
         Scanner sc = new Scanner(System.in);
 

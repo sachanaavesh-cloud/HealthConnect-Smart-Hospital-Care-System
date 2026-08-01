@@ -1,6 +1,7 @@
 import java.sql.*;
 import java.util.*;
 
+// Manages the creation, viewing, and downloading of patient medical reports.
 public class Report {
     int reportId = 0;
     String diagnosis = "";
@@ -8,6 +9,7 @@ public class Report {
     String temperature = "";
     String bloodPressure = "";
 
+    // Uploads and associates a medical report file with a lab test.
     public void generateReport() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n📝 --- Create Lab Test Report File ---");
@@ -41,6 +43,7 @@ public class Report {
         Main.logActivity(1, "UPDATE", "lab_tests");
     }
 
+    // Simulates downloading the currently selected medical report as a PDF.
     public void downloadPDF() {
         if (this.reportId == 0) {
             System.out.println("⚠️ No active report loaded. Please view a report first.");
@@ -51,6 +54,7 @@ public class Report {
         System.out.println("📥 Download complete!");
     }
 
+    // Displays all available medical reports for a patient.
     public void viewReport() throws Exception {
         Scanner sc = new Scanner(System.in);
 

@@ -1,10 +1,12 @@
 import java.sql.*;
 import java.util.*;
 
+// Stores and displays pharmacy information and available medicines.
 public class Pharmacy {
     String pharmacyName = "HealthConnect Smart Government Pharmacy";
     String address = "Ground Floor, HealthConnect Hospital Building, Gandhinagar, Gujarat";
 
+    // Displays the pharmacy details along with the available medicine stock.
     public void displayPharmacy() throws Exception {
         System.out.println("\n💊 --- Nearby Pharmacy Info ---");
         System.out.println("🏥 Pharmacy Name : " + this.pharmacyName);

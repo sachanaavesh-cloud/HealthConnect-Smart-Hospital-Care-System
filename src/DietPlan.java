@@ -1,6 +1,7 @@
 import java.sql.*;
 import java.util.*;
 
+// Stores diet plan information for patients.
 public class DietPlan {
     String disease = "";
     String breakfast = "";
@@ -10,6 +11,7 @@ public class DietPlan {
     String water = "";
     String avoidFoods = "";
 
+    // Generates and saves a personalized diet plan.
     public void generateDiet() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n🥗 --- Smart Diet Planner ---");
@@ -175,6 +177,7 @@ public class DietPlan {
         }
     }
 
+    // Displays the assigned diet plan of a patient.
     public void viewDiet() throws Exception {
         Scanner sc = new Scanner(System.in);
 
@@ -242,6 +245,7 @@ public class DietPlan {
         stmt.close();
     }
 
+    // Determines the disease associated with a diet plan.
     private static String getCleanDiseaseForDiet(int patientId, String inst, String breakfast, java.sql.Connection conn) {
         if (inst != null && inst.contains("Target Disease/Condition:")) {
             int start = inst.indexOf("Target Disease/Condition:") + "Target Disease/Condition:".length();
@@ -297,6 +301,7 @@ public class DietPlan {
         return "General Health";
     }
 
+    // Converts different disease names into a standard format.
     private static String normalizeDiseaseName(String raw) {
         String lower = raw.toLowerCase();
         if (lower.contains("bp") || lower.contains("hypertension") || lower.contains("pressure")) {
@@ -317,6 +322,7 @@ public class DietPlan {
         return raw;
     }
 
+    // Updates the dinner section of an existing diet plan.
     public void updateDiet() throws Exception {
         Scanner sc = new Scanner(System.in);
 

@@ -1,6 +1,7 @@
 import java.sql.*;
 import java.util.*;
 
+// Manages lab test booking, result updates, report viewing, and status management.
 public class LabTest {
     int labTestId = 0;
     Patient patient = new Patient();
@@ -13,6 +14,7 @@ public class LabTest {
     String testDate = "";
     String remarks = "";
 
+// Books a new lab test for a patient.
     public void bookLabTest() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n🧪 --- Book Lab Test ---");
@@ -68,6 +70,7 @@ public class LabTest {
         System.out.println("🎉 Lab Test scheduled successfully!");
     }
 
+    // Updates the report file for a completed lab test.
     public void updateResult() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n🧪 --- Save Lab Test Result ---");
@@ -100,6 +103,7 @@ public class LabTest {
         System.out.println("🎉 Lab result updated successfully!");
     }
 
+    // Displays the lab test details and report information for a patient.
     public void viewResult() throws Exception {
         Scanner sc = new Scanner(System.in);
 
@@ -148,6 +152,7 @@ public class LabTest {
         stmt.close();
     }
 
+    // Simulates downloading the selected lab test report.
     public void downloadReport() {
         if (this.labTestId == 0) {
             System.out.println("⚠️ No active lab test loaded. Please view one first.");
@@ -158,6 +163,7 @@ public class LabTest {
         System.out.println("📥 Download complete!");
     }
 
+    // Updates the status of a lab test.
     public void updateStatus() throws Exception {
         Scanner sc = new Scanner(System.in);
 

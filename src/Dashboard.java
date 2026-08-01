@@ -1,8 +1,10 @@
 import java.sql.*;
 import java.util.*;
 
+// Displays the patient dashboard with personal information and health statistics.
 public class Dashboard {
 
+    // Displays the dashboard of the currently logged-in patient.
     public void showPatientDashboard() throws Exception {
         if (Main.loggedInUser == null || !(Main.loggedInUser instanceof Patient)) {
             System.out.println("⚠️ No patient is currently logged in.");
@@ -69,6 +71,7 @@ public class Dashboard {
         System.out.println("========================================================");
     }
 
+    // Displays the dashboard of the currently logged-in doctor.
     public void showDoctorDashboard() throws Exception {
         if (Main.loggedInUser == null || !(Main.loggedInUser instanceof Doctor)) {
             System.out.println("⚠️ No doctor is currently logged in.");

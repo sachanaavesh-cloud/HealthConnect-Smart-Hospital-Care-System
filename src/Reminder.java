@@ -1,11 +1,13 @@
 import java.sql.*;
 import java.util.*;
 
+// Manages patient reminders for appointments, medicines, and vaccines.
 public class Reminder {
     String reminderDate = "";
     String type = "";
     String message = "";
 
+    // Creates a new reminder.
     public void createReminder() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n⏰ --- Create Reminder ---");
@@ -88,6 +90,7 @@ public class Reminder {
         System.out.println("🎉 Reminder created successfully!");
     }
 
+    // Displays all pending reminders for a patient.
     public void sendReminder() throws Exception {
         Scanner sc = new Scanner(System.in);
 
@@ -133,6 +136,7 @@ public class Reminder {
         ps.close();
     }
 
+    // Marks a reminder as completed.
     public void markCompleted() throws Exception {
         Scanner sc = new Scanner(System.in);
 

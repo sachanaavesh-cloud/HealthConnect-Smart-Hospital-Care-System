@@ -4,6 +4,7 @@ import java.util.*;
 public class Main {
     public static User loggedInUser = null;
 
+    // Record user activity in the audit log table
     public static void logActivity(int userId, String operation, String tableName) {
         try {
             if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
@@ -20,6 +21,7 @@ public class Main {
         }
     }
 
+    // Program execution starts here
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         System.out.println("=========================================================================");
@@ -89,6 +91,7 @@ public class Main {
         }
     }
 
+    // Display menu according to logged-in user role
     public static void showMenu() throws Exception {
         Scanner sc = new Scanner(System.in);
         if (loggedInUser instanceof Patient) {
@@ -100,6 +103,7 @@ public class Main {
         }
     }
 
+    // Display patient portal menu
     private static void showPatientMenu(Patient p) throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n====================================");
@@ -204,6 +208,7 @@ public class Main {
         }
     }
 
+    // Display doctor portal menu
     private static void showDoctorMenu(Doctor d) throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n====================================");
@@ -293,6 +298,7 @@ public class Main {
         }
     }
 
+    // Display admin portal menu
     private static void showAdminMenu(Admin a) throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n====================================");

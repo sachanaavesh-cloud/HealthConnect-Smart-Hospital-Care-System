@@ -1,11 +1,13 @@
 import java.sql.*;
 import java.util.*;
 
+// Manages communication between patients and doctors.
 public class Discussion {
     Appointment appointment = new Appointment();
     String message = "";
     String time = "";
 
+    // Sends a message from a patient to a doctor.
     public void sendMessage() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n💬 --- Send Message ---");
@@ -66,6 +68,7 @@ public class Discussion {
         System.out.println("🎉 Message sent successfully!");
     }
 
+    // Displays the conversation between a patient and a doctor.
     public void viewConversation() throws Exception {
         Scanner sc = new Scanner(System.in);
 
@@ -121,6 +124,7 @@ public class Discussion {
         stmt.close();
     }
 
+    // Uploads and shares a report file in the discussion.
     public void uploadReport() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n📎 --- Upload Report File to Discussion ---");

@@ -1,10 +1,12 @@
 import java.sql.*;
 import java.util.*;
 
+// Admin class for managing hospital system operations.
 public class Admin extends User {
     String designation = "";
     String accessLevel = "";
 
+    // Adds a new doctor to the system.
     public void addDoctor() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n👨‍⚕️ --- Add New Doctor ---");
@@ -226,6 +228,7 @@ public class Admin extends User {
         }
     }
 
+    // Removes a doctor from the system.
     public void removeDoctor() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n❌ --- Remove Doctor ---");
@@ -360,6 +363,7 @@ public class Admin extends User {
         }
     }
 
+    // Registers a new patient
     public void addPatient() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n🧑‍⚕️ --- Add/Register New Patient ---");
@@ -647,6 +651,7 @@ public class Admin extends User {
         }
     }
 
+    // Removes a patient from the system.
     public void removePatient() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n❌ --- Remove Patient ---");
@@ -804,6 +809,7 @@ public class Admin extends User {
         }
     }
 
+    // Displays all registered users.
     public void manageUsers() throws Exception {
         System.out.println("\n👤 --- System Users List ---");
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
@@ -826,6 +832,7 @@ public class Admin extends User {
         stmt.close();
     }
 
+    // Manages appointment records.
     public void manageAppointments() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n📅 --- Manage Appointments ---");
@@ -1011,6 +1018,7 @@ public class Admin extends User {
         }
     }
 
+    // Displays system reports and analytics.
     public void viewSystemReports() throws Exception {
         System.out.println("\n📊 --- HealthConnect System Analytics & Reports ---");
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
@@ -1046,6 +1054,7 @@ public class Admin extends User {
         System.out.println("-------------------------------------------------");
     }
 
+    // Manages billing and payment records.
     public void manageBilling() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n¾ --- Manage Billing & Payments ---");
@@ -1181,6 +1190,7 @@ public class Admin extends User {
         }
     }
 
+    // Displays patient feedback.
     public void viewFeedback() throws Exception {
         Scanner sc = new Scanner(System.in);
 

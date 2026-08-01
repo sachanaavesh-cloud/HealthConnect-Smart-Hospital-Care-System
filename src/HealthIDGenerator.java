@@ -1,8 +1,10 @@
 import java.sql.*;
 import java.util.*;
 
+// Generates and verifies Health IDs for patients.
 public class HealthIDGenerator {
 
+    // Generates a unique Health ID using the GenerateHealthID stored function.
     public String generateHealthID() throws Exception {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
@@ -16,6 +18,7 @@ public class HealthIDGenerator {
         return id;
     }
 
+    // Verifies whether the given Health ID exists in the database.
     public boolean verifyHealthID(String healthId) throws Exception {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();

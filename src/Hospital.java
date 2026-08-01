@@ -1,10 +1,12 @@
 import java.sql.*;
 import java.util.*;
 
+// Stores and displays hospital information and department details.
 public class Hospital {
     String hospitalName = "HealthConnect Smart AI Government Hospital";
     String address = "Opp. Swaminarayan Temple, Sector 20, Gandhinagar, Gujarat";
 
+    // Displays hospital information along with all available departments.
     public void displayHospital() throws Exception {
         System.out.println("\n🏥 --- Nearby Hospital Info ---");
         System.out.println("🏨 Hospital Name : " + this.hospitalName);

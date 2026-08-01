@@ -1,6 +1,7 @@
 import java.sql.*;
 import java.util.*;
 
+// Represents the audit log system for recording and managing user activities.
 public class AuditLog {
     int logId = 0;
     User user = new User();
@@ -10,6 +11,7 @@ public class AuditLog {
     String logTime = "";
     String description = "";
 
+    // Creates a new audit log entry in the database.
     public void createLog() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n📜 --- Create Manual Audit Log ---");
@@ -45,6 +47,7 @@ public class AuditLog {
         System.out.println("✅ Audit log created successfully.");
     }
 
+    // Displays the latest audit log records from the database.
     public void viewLogs() throws Exception {
         System.out.println("\n📜 --- System Audit Logs (Last 50 entries) ---");
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
@@ -72,6 +75,7 @@ public class AuditLog {
         stmt.close();
     }
 
+    // Searches audit logs based on the specified user ID.
     public void searchLogs() throws Exception {
         Scanner sc = new Scanner(System.in);
 
@@ -119,6 +123,7 @@ public class AuditLog {
         ps.close();
     }
 
+    // Deletes audit log records older than the specified date.
     public void deleteOldLogs() throws Exception {
         Scanner sc = new Scanner(System.in);
 

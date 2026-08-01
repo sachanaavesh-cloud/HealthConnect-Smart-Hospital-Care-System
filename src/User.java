@@ -1,6 +1,7 @@
 import java.sql.*;
 import java.util.*;
 
+// Manages user login and profile operations.
 public class User {
     int userId = 0;
     String name = "";
@@ -9,6 +10,7 @@ public class User {
     String phone = "";
     String role = "";
 
+    // Authenticates the user.
     public void login() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.print("📧 Enter Email/Username: ");
@@ -44,6 +46,7 @@ public class User {
         stmt.close();
     }
 
+    // Logs out the current user.
     public void logout() throws Exception {
         if (this.userId == 0) {
             System.out.println("⚠️ No user is currently logged in.");
@@ -66,6 +69,7 @@ public class User {
         this.role = "";
     }
 
+    // Updates user profile information.
     public void updateProfile() throws Exception {
         if (this.userId == 0) {
             System.out.println("⚠️ Please login first.");
@@ -154,6 +158,7 @@ public class User {
         }
     }
 
+    // Changes the user password.
     public void changePassword() throws Exception {
         if (this.userId == 0) {
             System.out.println("⚠️ Please login first.");

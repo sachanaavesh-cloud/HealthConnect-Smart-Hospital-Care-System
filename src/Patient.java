@@ -1,12 +1,14 @@
 import java.sql.*;
 import java.util.*;
 
+// Patient class for managing patient-related operations.
 public class Patient extends User {
     String healthId = "";
     String bloodGroup = "";
     String allergies = "";
     String emergencyContact = "";
 
+    // Loads patient details from the database.
     public void loadPatientDetails() throws Exception {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
@@ -37,6 +39,7 @@ public class Patient extends User {
         ps.close();
     }
 
+    // Retrieves patient ID using the logged-in user ID.
     private int getPatientIdByUserId(int userId) throws Exception {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
@@ -53,10 +56,12 @@ public class Patient extends User {
         return patientId;
     }
 
+    // Returns the patient ID of the current user.
     public int getPatientId() throws Exception {
         return getPatientIdByUserId(this.userId);
     }
 
+    // Books a new appointment for the patient.
     public void bookAppointment() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n📅 --- Book Appointment ---");
@@ -168,13 +173,25 @@ public class Patient extends User {
             System.out.println("6. Normal");
             System.out.print("👉 Enter choice (1-6): ");
             String choiceOpt = sc.nextLine().trim();
-            if (choiceOpt.equals("1")) { priority = "Emergency"; break; }
-            else if (choiceOpt.equals("2")) { priority = "Pregnant"; break; }
-            else if (choiceOpt.equals("3")) { priority = "Senior Citizen"; break; }
-            else if (choiceOpt.equals("4")) { priority = "Child"; break; }
-            else if (choiceOpt.equals("5")) { priority = "Disabled"; break; }
-            else if (choiceOpt.equals("6")) { priority = "Normal"; break; }
-            else {
+            if (choiceOpt.equals("1")) {
+                priority = "Emergency";
+                break;
+            } else if (choiceOpt.equals("2")) {
+                priority = "Pregnant";
+                break;
+            } else if (choiceOpt.equals("3")) {
+                priority = "Senior Citizen";
+                break;
+            } else if (choiceOpt.equals("4")) {
+                priority = "Child";
+                break;
+            } else if (choiceOpt.equals("5")) {
+                priority = "Disabled";
+                break;
+            } else if (choiceOpt.equals("6")) {
+                priority = "Normal";
+                break;
+            } else {
                 System.out.println("⚠️ Error: Invalid option. Please choose between 1 and 6.");
             }
         }
@@ -259,6 +276,7 @@ public class Patient extends User {
         }
     }
 
+    // Displays the patient's medical history.
     public void viewMedicalHistory() throws Exception {
         int patientId = getPatientIdByUserId(this.userId);
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
@@ -285,6 +303,7 @@ public class Patient extends User {
         stmt.close();
     }
 
+    // Displays all prescriptions and medicines of the patient.
     public void viewPrescription() throws Exception {
         int patientId = getPatientIdByUserId(this.userId);
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
@@ -340,6 +359,7 @@ public class Patient extends User {
         stmt.close();
     }
 
+    // Displays the assigned diet plans.
     public void viewDietPlan() throws Exception {
         int patientId = getPatientIdByUserId(this.userId);
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
@@ -388,6 +408,7 @@ public class Patient extends User {
         stmt.close();
     }
 
+    // Identifies the disease associated with a diet plan.
     private static String getCleanDiseaseForDiet(int patientId, String inst, String breakfast, java.sql.Connection conn) {
         if (inst != null && inst.contains("Target Disease/Condition:")) {
             int start = inst.indexOf("Target Disease/Condition:") + "Target Disease/Condition:".length();
@@ -438,11 +459,13 @@ public class Patient extends User {
                 rsHist.close();
                 psHist.close();
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         return "General Health";
     }
 
+    // Formats disease names into a standard form.
     private static String normalizeDiseaseName(String raw) {
         String lower = raw.toLowerCase();
         if (lower.contains("bp") || lower.contains("hypertension") || lower.contains("pressure")) {
@@ -463,6 +486,7 @@ public class Patient extends User {
         return raw;
     }
 
+    // Displays the patient's lab and medical reports.
     public void viewReports() throws Exception {
         int patientId = getPatientIdByUserId(this.userId);
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
@@ -489,6 +513,7 @@ public class Patient extends User {
         stmt.close();
     }
 
+    // Opens the patient dashboard.
     public void viewDashboard() throws Exception {
         new Dashboard().showPatientDashboard();
     }

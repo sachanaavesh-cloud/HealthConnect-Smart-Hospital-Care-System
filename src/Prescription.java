@@ -1,6 +1,7 @@
 import java.sql.*;
 import java.util.*;
 
+// Everything About Prescription
 public class Prescription {
     String medicine = "";
     String dosage = "";
@@ -8,6 +9,7 @@ public class Prescription {
     String instructions = "";
     private int loadedPrescriptionId = 0;
 
+    // Adds or updates notes for an existing prescription.
     public void addMedicine() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n👑 --- Update Prescription Notes ---");
@@ -41,6 +43,7 @@ public class Prescription {
         Main.logActivity(1, "UPDATE", "prescriptions");
     }
 
+    // Deletes an existing prescription.
     public void updateMedicine() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n❌ --- Delete Prescription ---");
@@ -70,6 +73,7 @@ public class Prescription {
         Main.logActivity(1, "DELETE", "prescriptions");
     }
 
+    // Displays the details of a selected prescription.
     public void viewPrescription() throws Exception {
         Scanner sc = new Scanner(System.in);
 
@@ -139,6 +143,7 @@ public class Prescription {
         stmt.close();
     }
 
+    // Simulates downloading the selected prescription as a PDF.
     public void downloadPDF() {
         if (this.loadedPrescriptionId == 0) {
             System.out.println("⚠️ No active prescription loaded. Please view one first.");

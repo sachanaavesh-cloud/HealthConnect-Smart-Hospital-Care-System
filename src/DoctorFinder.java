@@ -1,8 +1,10 @@
 import java.sql.*;
 import java.util.*;
 
+// Provides features to search doctors and book appointments.
 public class DoctorFinder {
 
+    // Searches doctors based on the selected medical specialization.
     public void searchBySpecialization() throws Exception {
         Scanner sc = new Scanner(System.in);
 
@@ -17,13 +19,25 @@ public class DoctorFinder {
             System.out.println("6. Gynecologist");
             System.out.print("👉 Enter choice (1-6): ");
             String opt = sc.nextLine().trim();
-            if (opt.equals("1")) { spec = "Cardiologist"; break; }
-            else if (opt.equals("2")) { spec = "Dentist"; break; }
-            else if (opt.equals("3")) { spec = "Orthopedic"; break; }
-            else if (opt.equals("4")) { spec = "Neurologist"; break; }
-            else if (opt.equals("5")) { spec = "Pediatrician"; break; }
-            else if (opt.equals("6")) { spec = "Gynecologist"; break; }
-            else {
+            if (opt.equals("1")) {
+                spec = "Cardiologist";
+                break;
+            } else if (opt.equals("2")) {
+                spec = "Dentist";
+                break;
+            } else if (opt.equals("3")) {
+                spec = "Orthopedic";
+                break;
+            } else if (opt.equals("4")) {
+                spec = "Neurologist";
+                break;
+            } else if (opt.equals("5")) {
+                spec = "Pediatrician";
+                break;
+            } else if (opt.equals("6")) {
+                spec = "Gynecologist";
+                break;
+            } else {
                 System.out.println("⚠️ Error: Invalid option. Please choose between 1 and 6.");
             }
         }
@@ -56,6 +70,7 @@ public class DoctorFinder {
         ps.close();
     }
 
+    // Displays all currently available doctors along with their details.
     public void searchAvailableDoctors() throws Exception {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
@@ -84,6 +99,7 @@ public class DoctorFinder {
         ps.close();
     }
 
+    // Redirects the patient to the appointment booking process.
     public void bookDoctor() throws Exception {
         System.out.println("\n📅 Redirecting you to booking menu...");
         Patient p = (Patient) Main.loggedInUser;

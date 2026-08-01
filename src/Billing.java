@@ -1,6 +1,7 @@
 import java.sql.*;
 import java.util.*;
 
+// Represents the billing system for generating bills, processing payments, and viewing billing details.
 public class Billing {
     int billId = 0;
     Patient patient = new Patient();
@@ -14,6 +15,7 @@ public class Billing {
     String paymentMethod = "";
     String billDate = "";
 
+    // Generates a new bill for a patient using the GenerateBill stored procedure.
     public void generateBill() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n💳 --- Generate Bill ---");
@@ -73,6 +75,7 @@ public class Billing {
         Main.logActivity(1, "INSERT", "payments");
     }
 
+    // Calculates the total bill amount for a specific appointment.
     public void calculateTotal() throws Exception {
         Scanner sc = new Scanner(System.in);
 
@@ -102,6 +105,7 @@ public class Billing {
         System.out.println("💰 Total calculated bill amount: Rs. " + total);
     }
 
+    // Processes bill payment after validating the payment details and payment method.
     public void makePayment() throws Exception {
         Scanner sc = new Scanner(System.in);
 
@@ -279,6 +283,7 @@ public class Billing {
         System.out.println("🎉 Payment successful! Payment ID " + bId + " is now Paid.");
     }
 
+    // Simulates downloading the currently loaded bill receipt.
     public void downloadBill() {
         if (this.billId == 0) {
             System.out.println("⚠️ No active bill loaded. Please view a bill first.");
@@ -289,6 +294,7 @@ public class Billing {
         System.out.println("📥 Download complete!");
     }
 
+    // Displays the details of a selected bill for the logged-in patient.
     public void viewBill() throws Exception {
         Scanner sc = new Scanner(System.in);
 

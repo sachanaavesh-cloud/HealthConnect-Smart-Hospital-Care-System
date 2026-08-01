@@ -1,12 +1,14 @@
 import java.sql.*;
 import java.util.*;
 
+// Manages patient medical records including adding, updating, and viewing records.
 public class MedicalRecord {
     Patient patient = new Patient();
     String diagnosis = "";
     String allergies = "";
     String history = "";
 
+    // Adds a new medical record for a patient.
     public void addRecord() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n📋 --- Add Medical Record ---");
@@ -58,6 +60,7 @@ public class MedicalRecord {
         Main.logActivity(1, "INSERT", "medical_history");
     }
 
+    // Updates an existing medical record.
     public void updateRecord() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n⚙️ --- Update Medical Record ---");
@@ -108,6 +111,7 @@ public class MedicalRecord {
         }
     }
 
+    // Displays the medical records of a patient.
     public void viewRecord() throws Exception {
         Scanner sc = new Scanner(System.in);
 
