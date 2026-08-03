@@ -31,13 +31,6 @@ public class User {
             this.role = rs.getString("role");
             this.password = pwd;
             System.out.println("🎉 Login successful! Welcome, " + this.email + " (" + this.role + ")");
-
-            // Log login activity in login_history table
-            PreparedStatement ps = DBConnection.conn.prepareStatement("INSERT INTO login_history(user_id, login_time, ip_address) VALUES (?, NOW(), '127.0.0.1')");
-            ps.setInt(1, this.userId);
-            ps.executeUpdate();
-            ps.close();
-
             Main.logActivity(this.userId, "LOGIN", "users");
         } else {
             System.out.println("❌ Invalid email/username or password.");
@@ -55,10 +48,6 @@ public class User {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
         }
-        PreparedStatement ps = DBConnection.conn.prepareStatement("UPDATE login_history SET logout_time = NOW() WHERE user_id = ? AND logout_time IS NULL");
-        ps.setInt(1, this.userId);
-        ps.executeUpdate();
-        ps.close();
         System.out.println("🚪 Logged out successfully.");
         Main.logActivity(this.userId, "LOGOUT", "users");
         this.userId = 0;

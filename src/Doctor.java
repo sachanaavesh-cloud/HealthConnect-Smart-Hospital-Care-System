@@ -25,6 +25,11 @@ public class Doctor extends User {
         ps.close();
     }
 
+    public void viewLiveQueue() throws Exception {
+        int doctorId = getDoctorId();
+        new QueueManager().displayQueue(doctorId);
+    }
+
     // Return doctor ID using logged-in user ID
     private int getDoctorIdByUserId(int userId) throws Exception {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {

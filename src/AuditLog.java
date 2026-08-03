@@ -1,8 +1,28 @@
-import java.sql.*;
-import java.util.*;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.Scanner;
+import java.util.Stack;
 
-// Represents the audit log system for recording and managing user activities.
 public class AuditLog {
+    static class LogEntry {
+        int logId;
+        int userId;
+        String operation;
+        String tableName;
+        String timestamp;
+
+        public LogEntry(int logId, int userId, String operation, String tableName, String timestamp) {
+            this.logId = logId;
+            this.userId = userId;
+            this.operation = operation;
+            this.tableName = tableName;
+            this.timestamp = timestamp;
+        }
+    }
+
+    Stack<LogEntry> logStack = new Stack<>();
+
     int logId = 0;
     User user = new User();
     String action = "";
@@ -11,7 +31,6 @@ public class AuditLog {
     String logTime = "";
     String description = "";
 
-    // Creates a new audit log entry in the database.
     public void createLog() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n📜 --- Create Manual Audit Log ---");
@@ -44,10 +63,11 @@ public class AuditLog {
         ps.setString(3, table);
         ps.executeUpdate();
         ps.close();
+
+        logStack.push(new LogEntry(0, uId, op, table, "Just Now"));
         System.out.println("✅ Audit log created successfully.");
     }
 
-    // Displays the latest audit log records from the database.
     public void viewLogs() throws Exception {
         System.out.println("\n📜 --- System Audit Logs (Last 50 entries) ---");
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
@@ -55,27 +75,39 @@ public class AuditLog {
         }
         CallableStatement stmt = DBConnection.conn.prepareCall("{call ViewAuditLogs()}");
         ResultSet rs = stmt.executeQuery();
-        System.out.printf("%-8s | %-8s | %-12s | %-20s | %-25s\n", "Log ID", "User ID", "Operation", "Table Name", "Timestamp");
-        System.out.println("-----------------------------------------------------------------------------------------");
-        boolean found = false;
+
+        logStack.clear();
         while (rs.next()) {
-            found = true;
-            System.out.printf("%-8d | %-8d | %-12s | %-20s | %-25s\n",
+            logStack.push(new LogEntry(
                     rs.getInt("log_id"),
                     rs.getInt("user_id"),
                     rs.getString("operation"),
                     rs.getString("table_name"),
                     rs.getString("timestamp")
+            ));
+        }
+        rs.close();
+        stmt.close();
+
+        System.out.printf("%-8s | %-8s | %-12s | %-20s | %-25s\n", "Log ID", "User ID", "Operation", "Table Name", "Timestamp");
+        System.out.println("-----------------------------------------------------------------------------------------");
+        boolean found = false;
+        while (!logStack.isEmpty()) {
+            found = true;
+            LogEntry log = logStack.pop();
+            System.out.printf("%-8d | %-8d | %-12s | %-20s | %-25s\n",
+                    log.logId,
+                    log.userId,
+                    log.operation,
+                    log.tableName,
+                    log.timestamp
             );
         }
         if (!found) {
             System.out.println("📭 No logs found.");
         }
-        rs.close();
-        stmt.close();
     }
 
-    // Searches audit logs based on the specified user ID.
     public void searchLogs() throws Exception {
         Scanner sc = new Scanner(System.in);
 
@@ -102,28 +134,40 @@ public class AuditLog {
             ps.setInt(1, uId);
         }
         ResultSet rs = ps.executeQuery();
-        System.out.println("\n🔍 --- Audit Search Results ---");
-        System.out.printf("%-8s | %-8s | %-12s | %-20s | %-25s\n", "Log ID", "User ID", "Operation", "Table Name", "Timestamp");
-        System.out.println("-----------------------------------------------------------------------------------------");
-        boolean found = false;
+
+        Stack<LogEntry> searchStack = new Stack<>();
         while (rs.next()) {
-            found = true;
-            System.out.printf("%-8d | %-8d | %-12s | %-20s | %-25s\n",
+            searchStack.push(new LogEntry(
                     rs.getInt("log_id"),
                     rs.getInt("user_id"),
                     rs.getString("operation"),
                     rs.getString("table_name"),
                     rs.getString("timestamp")
+            ));
+        }
+        rs.close();
+        ps.close();
+
+        System.out.println("\n🔍 --- Audit Search Results ---");
+        System.out.printf("%-8s | %-8s | %-12s | %-20s | %-25s\n", "Log ID", "User ID", "Operation", "Table Name", "Timestamp");
+        System.out.println("-----------------------------------------------------------------------------------------");
+        boolean found = false;
+        while (!searchStack.isEmpty()) {
+            found = true;
+            LogEntry log = searchStack.pop();
+            System.out.printf("%-8d | %-8d | %-12s | %-20s | %-25s\n",
+                    log.logId,
+                    log.userId,
+                    log.operation,
+                    log.tableName,
+                    log.timestamp
             );
         }
         if (!found) {
             System.out.println("📭 No matching logs found.");
         }
-        rs.close();
-        ps.close();
     }
 
-    // Deletes audit log records older than the specified date.
     public void deleteOldLogs() throws Exception {
         Scanner sc = new Scanner(System.in);
 

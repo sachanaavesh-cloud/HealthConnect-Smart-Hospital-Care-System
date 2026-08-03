@@ -1,27 +1,36 @@
-import java.sql.*;
-import java.util.*;
+import java.sql.CallableStatement;
+import java.sql.ResultSet;
+import java.util.LinkedList;
+import java.util.Scanner;
 
-// Manages patient medical records including adding, updating, and viewing records.
 public class MedicalRecord {
-    Patient patient = new Patient();
-    String diagnosis = "";
-    String allergies = "";
-    String history = "";
+    public int historyId;
+    public int patientId;
+    public String disease = "";
+    public String description = "";
 
-    // Adds a new medical record for a patient.
+    public MedicalRecord() {}
+
+    public MedicalRecord(int historyId, int patientId, String disease, String description) {
+        this.historyId = historyId;
+        this.patientId = patientId;
+        this.disease = disease;
+        this.description = description;
+    }
+
     public void addRecord() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n📋 --- Add Medical Record ---");
 
-        int patientId = 0;
+        int pId = 0;
         if (Main.loggedInUser instanceof Patient) {
-            patientId = ((Patient) Main.loggedInUser).getPatientId();
+            pId = ((Patient) Main.loggedInUser).getPatientId();
         } else {
             while (true) {
                 System.out.print("👉 Enter Patient ID: ");
                 try {
-                    patientId = Integer.parseInt(sc.nextLine().trim());
-                    if (patientId > 0) {
+                    pId = Integer.parseInt(sc.nextLine().trim());
+                    if (pId > 0) {
                         break;
                     }
                     System.out.println("⚠️ Error: Patient ID must be a positive integer.");
@@ -32,45 +41,33 @@ public class MedicalRecord {
         }
 
         System.out.print("🦠 Enter Disease/Diagnosis: ");
-        String disease = sc.nextLine();
-        System.out.print("🤧 Enter Allergy (or None): ");
-        String allergy = sc.nextLine();
-        System.out.print("🔪 Enter Surgery (or None): ");
-        String surgery = sc.nextLine();
-        System.out.print("👪 Enter Family History (or None): ");
-        String familyHistory = sc.nextLine();
+        String dis = sc.nextLine();
         System.out.print("📝 Enter Description/Notes: ");
         String desc = sc.nextLine();
 
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
         }
-        java.sql.PreparedStatement ps = DBConnection.conn.prepareStatement(
-                "INSERT INTO medical_history (patient_id, disease, allergy, surgery, family_history, description) VALUES (?, ?, ?, ?, ?, ?)");
-        ps.setInt(1, patientId);
-        ps.setString(2, disease);
-        ps.setString(3, allergy);
-        ps.setString(4, surgery);
-        ps.setString(5, familyHistory);
-        ps.setString(6, desc);
-        ps.executeUpdate();
-        ps.close();
-
-        System.out.println("✅ Medical record with Allergy, Surgery, and Family History added successfully.");
+        CallableStatement stmt = DBConnection.conn.prepareCall("{call AddMedicalRecord(?, ?, ?)}");
+        stmt.setInt(1, pId);
+        stmt.setString(2, dis);
+        stmt.setString(3, desc);
+        stmt.execute();
+        stmt.close();
+        System.out.println("✅ Medical record added successfully.");
         Main.logActivity(1, "INSERT", "medical_history");
     }
 
-    // Updates an existing medical record.
     public void updateRecord() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n⚙️ --- Update Medical Record ---");
 
-        int historyId = 0;
+        int hId = 0;
         while (true) {
             System.out.print("👉 Enter History ID: ");
             try {
-                historyId = Integer.parseInt(sc.nextLine().trim());
-                if (historyId > 0) {
+                hId = Integer.parseInt(sc.nextLine().trim());
+                if (hId > 0) {
                     break;
                 }
                 System.out.println("⚠️ Error: History ID must be a positive integer.");
@@ -79,51 +76,53 @@ public class MedicalRecord {
             }
         }
 
-        System.out.print("🦠 Enter Disease/Diagnosis: ");
-        String disease = sc.nextLine();
-        System.out.print("🤧 Enter Allergy (or None): ");
-        String allergy = sc.nextLine();
-        System.out.print("🔪 Enter Surgery (or None): ");
-        String surgery = sc.nextLine();
-        System.out.print("👪 Enter Family History (or None): ");
-        String familyHistory = sc.nextLine();
         System.out.print("📝 Enter Description/Notes: ");
         String desc = sc.nextLine();
 
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
         }
-        java.sql.PreparedStatement ps = DBConnection.conn.prepareStatement(
-                "UPDATE medical_history SET disease = ?, allergy = ?, surgery = ?, family_history = ?, description = ? WHERE history_id = ?");
-        ps.setString(1, disease);
-        ps.setString(2, allergy);
-        ps.setString(3, surgery);
-        ps.setString(4, familyHistory);
-        ps.setString(5, desc);
-        ps.setInt(6, historyId);
-        int rows = ps.executeUpdate();
-        ps.close();
-
-        if (rows > 0) {
-            System.out.println("✅ Medical record updated successfully.");
-        } else {
-            System.out.println("❌ Medical History ID not found.");
-        }
+        CallableStatement stmt = DBConnection.conn.prepareCall("{call UpdateMedicalRecord(?, ?)}");
+        stmt.setInt(1, hId);
+        stmt.setString(2, desc);
+        stmt.execute();
+        stmt.close();
+        System.out.println("✅ Medical record updated successfully.");
     }
 
-    // Displays the medical records of a patient.
+    public LinkedList<MedicalRecord> fetchMedicalHistoryList(int targetPatientId) throws Exception {
+        LinkedList<MedicalRecord> historyLinkedList = new LinkedList<>();
+        if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
+            DBConnection.initialize();
+        }
+        CallableStatement stmt = DBConnection.conn.prepareCall("{call ViewMedicalRecord(?)}");
+        stmt.setInt(1, targetPatientId);
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            historyLinkedList.add(new MedicalRecord(
+                    rs.getInt("history_id"),
+                    targetPatientId,
+                    rs.getString("disease"),
+                    rs.getString("description")
+            ));
+        }
+        rs.close();
+        stmt.close();
+        return historyLinkedList;
+    }
+
     public void viewRecord() throws Exception {
         Scanner sc = new Scanner(System.in);
 
-        int patientId = 0;
+        int targetPatientId = 0;
         if (Main.loggedInUser instanceof Patient) {
-            patientId = ((Patient) Main.loggedInUser).getPatientId();
+            targetPatientId = ((Patient) Main.loggedInUser).getPatientId();
         } else {
             while (true) {
                 System.out.print("👉 Enter Patient ID to view records: ");
                 try {
-                    patientId = Integer.parseInt(sc.nextLine().trim());
-                    if (patientId > 0) {
+                    targetPatientId = Integer.parseInt(sc.nextLine().trim());
+                    if (targetPatientId > 0) {
                         break;
                     }
                     System.out.println("⚠️ Error: Patient ID must be a positive integer.");
@@ -133,28 +132,20 @@ public class MedicalRecord {
             }
         }
 
-        if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
-            DBConnection.initialize();
-        }
-        java.sql.PreparedStatement ps = DBConnection.conn.prepareStatement("SELECT * FROM medical_history WHERE patient_id = ?");
-        ps.setInt(1, patientId);
-        ResultSet rs = ps.executeQuery();
-        System.out.println("\n📋 --- Medical History Records for Patient ID " + patientId + " ---");
-        boolean found = false;
-        while (rs.next()) {
-            found = true;
-            System.out.println("🔑 History ID       : " + rs.getInt("history_id"));
-            System.out.println("🦠 Disease/Diagnosis: " + rs.getString("disease"));
-            System.out.println("🤧 Allergy          : " + (rs.getString("allergy") != null ? rs.getString("allergy") : "-"));
-            System.out.println("🔪 Surgery          : " + (rs.getString("surgery") != null ? rs.getString("surgery") : "-"));
-            System.out.println("👪 Family History   : " + (rs.getString("family_history") != null ? rs.getString("family_history") : "-"));
-            System.out.println("📝 Description      : " + (rs.getString("description") != null ? rs.getString("description") : "-"));
-            System.out.println("--------------------------------------------------");
-        }
-        if (!found) {
+        // Populate in-memory LinkedList data structure from Database
+        LinkedList<MedicalRecord> historyList = fetchMedicalHistoryList(targetPatientId);
+
+        System.out.println("\n📋 --- Medical History Records (Traversing LinkedList) for Patient ID " + targetPatientId + " ---");
+        if (historyList.isEmpty()) {
             System.out.println("📭 No medical history records found.");
+        } else {
+            // Traversal across the LinkedList nodes
+            for (MedicalRecord rec : historyList) {
+                System.out.println("🔑 History ID       : " + rec.historyId);
+                System.out.println("🦠 Disease/Diagnosis: " + rec.disease);
+                System.out.println("📝 Description      : " + rec.description);
+                System.out.println("--------------------------------------------------");
+            }
         }
-        rs.close();
-        ps.close();
     }
 }

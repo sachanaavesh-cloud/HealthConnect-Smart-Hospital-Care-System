@@ -17,7 +17,7 @@ public class Main {
             ps.executeUpdate();
             ps.close();
         } catch (Exception e) {
-            // Ignore
+            System.out.println(e);
         }
     }
 
@@ -268,7 +268,7 @@ public class Main {
                 d.showFollowUpsAndReply();
                 break;
             case "7":
-                new QueueManager().displayQueue();
+                d.viewLiveQueue();
                 break;
             case "8":
                 System.out.print("👉 Enter availability string (e.g. Mon-Fri 9AM-2PM): ");

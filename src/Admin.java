@@ -567,8 +567,28 @@ public class Admin extends User {
             }
         }
 
-        System.out.print("👉 Enter Emergency Contact Name/Phone: ");
-        String emergency = sc.nextLine();
+
+        String emergency = "";
+        while (true) {
+            System.out.print("👉 Enter Emergency Contact Phone Number (10 digits): ");
+            emergency = sc.nextLine().trim();
+            boolean isValid = true;
+            if (emergency.length() != 10) {
+                isValid = false;
+            } else {
+                for (int i = 0; i < emergency.length(); i++) {
+                    char ch = emergency.charAt(i);
+                    if (ch < '0' || ch > '9') {
+                        isValid = false;
+                        break;
+                    }
+                }
+            }
+            if (isValid) {
+                break;
+            }
+            System.out.println("⚠️ Error: Emergency contact phone number must be exactly 10 digits.");
+        }
         System.out.print("👉 Enter Password for Patient Account: ");
         String pwd = sc.nextLine();
 

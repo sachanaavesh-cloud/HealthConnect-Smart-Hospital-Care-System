@@ -1,14 +1,14 @@
-import java.sql.*;
-import java.util.*;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.Scanner;
 
-// Patient class for managing patient-related operations.
 public class Patient extends User {
     String healthId = "";
     String bloodGroup = "";
     String allergies = "";
     String emergencyContact = "";
 
-    // Loads patient details from the database.
     public void loadPatientDetails() throws Exception {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
@@ -39,7 +39,6 @@ public class Patient extends User {
         ps.close();
     }
 
-    // Retrieves patient ID using the logged-in user ID.
     private int getPatientIdByUserId(int userId) throws Exception {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
@@ -56,12 +55,10 @@ public class Patient extends User {
         return patientId;
     }
 
-    // Returns the patient ID of the current user.
     public int getPatientId() throws Exception {
         return getPatientIdByUserId(this.userId);
     }
 
-    // Books a new appointment for the patient.
     public void bookAppointment() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n📅 --- Book Appointment ---");
@@ -173,25 +170,13 @@ public class Patient extends User {
             System.out.println("6. Normal");
             System.out.print("👉 Enter choice (1-6): ");
             String choiceOpt = sc.nextLine().trim();
-            if (choiceOpt.equals("1")) {
-                priority = "Emergency";
-                break;
-            } else if (choiceOpt.equals("2")) {
-                priority = "Pregnant";
-                break;
-            } else if (choiceOpt.equals("3")) {
-                priority = "Senior Citizen";
-                break;
-            } else if (choiceOpt.equals("4")) {
-                priority = "Child";
-                break;
-            } else if (choiceOpt.equals("5")) {
-                priority = "Disabled";
-                break;
-            } else if (choiceOpt.equals("6")) {
-                priority = "Normal";
-                break;
-            } else {
+            if (choiceOpt.equals("1")) { priority = "Emergency"; break; }
+            else if (choiceOpt.equals("2")) { priority = "Pregnant"; break; }
+            else if (choiceOpt.equals("3")) { priority = "Senior Citizen"; break; }
+            else if (choiceOpt.equals("4")) { priority = "Child"; break; }
+            else if (choiceOpt.equals("5")) { priority = "Disabled"; break; }
+            else if (choiceOpt.equals("6")) { priority = "Normal"; break; }
+            else {
                 System.out.println("⚠️ Error: Invalid option. Please choose between 1 and 6.");
             }
         }
@@ -234,38 +219,6 @@ public class Patient extends User {
                 ps2.close();
             }
 
-            // If appointment date is today, auto-add to live queue
-            if (dateStr.equals(java.time.LocalDate.now().toString())) {
-                PreparedStatement psQCheck = DBConnection.conn.prepareStatement(
-                        "SELECT queue_id FROM queue WHERE patient_id = ? AND doctor_id = ? AND status = 'Waiting'");
-                psQCheck.setInt(1, patientId);
-                psQCheck.setInt(2, doctorId);
-                ResultSet rsQ = psQCheck.executeQuery();
-                if (!rsQ.next()) {
-                    int nextQNum = 1;
-                    PreparedStatement psNum = DBConnection.conn.prepareStatement(
-                            "SELECT COALESCE(MAX(queue_number), 0) + 1 FROM queue WHERE doctor_id = ? AND DATE(arrival_time) = CURDATE()");
-                    psNum.setInt(1, doctorId);
-                    ResultSet rsNum = psNum.executeQuery();
-                    if (rsNum.next()) {
-                        nextQNum = rsNum.getInt(1);
-                    }
-                    rsNum.close();
-                    psNum.close();
-
-                    PreparedStatement psQAdd = DBConnection.conn.prepareStatement(
-                            "INSERT INTO queue (patient_id, doctor_id, priority_level, queue_number, status, arrival_time) VALUES (?, ?, ?, ?, 'Waiting', NOW())");
-                    psQAdd.setInt(1, patientId);
-                    psQAdd.setInt(2, doctorId);
-                    psQAdd.setString(3, priority);
-                    psQAdd.setInt(4, nextQNum);
-                    psQAdd.executeUpdate();
-                    psQAdd.close();
-                }
-                rsQ.close();
-                psQCheck.close();
-            }
-
             DBConnection.conn.commit();
             System.out.println("🎉 Appointment booked successfully!");
         } catch (Exception ex) {
@@ -276,34 +229,10 @@ public class Patient extends User {
         }
     }
 
-    // Displays the patient's medical history.
     public void viewMedicalHistory() throws Exception {
-        int patientId = getPatientIdByUserId(this.userId);
-        if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
-            DBConnection.initialize();
-        }
-        CallableStatement stmt = DBConnection.conn.prepareCall("{call ViewMedicalHistory(?)}");
-        stmt.setInt(1, patientId);
-        ResultSet rs = stmt.executeQuery();
-        System.out.println("\n📋 --- Medical History ---");
-        boolean found = false;
-        while (rs.next()) {
-            found = true;
-            System.out.println("🦠 Disease: " + rs.getString("disease"));
-            System.out.println("🤧 Allergy: " + rs.getString("allergy"));
-            System.out.println("🔪 Surgery: " + rs.getString("surgery"));
-            System.out.println("👪 Family History: " + rs.getString("family_history"));
-            System.out.println("📝 Description: " + rs.getString("description"));
-            System.out.println("----------------------------------------");
-        }
-        if (!found) {
-            System.out.println("📭 No medical history found.");
-        }
-        rs.close();
-        stmt.close();
+        new MedicalRecord().viewRecord();
     }
 
-    // Displays all prescriptions and medicines of the patient.
     public void viewPrescription() throws Exception {
         int patientId = getPatientIdByUserId(this.userId);
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
@@ -316,41 +245,11 @@ public class Patient extends User {
         boolean found = false;
         while (rs.next()) {
             found = true;
-            int prescriptionId = rs.getInt("prescription_id");
-            System.out.println("🔑 Prescription ID: " + prescriptionId);
+            System.out.println("🔑 Prescription ID: " + rs.getInt("prescription_id"));
             System.out.println("🔬 Diagnosis      : " + rs.getString("diagnosis"));
-            System.out.println("📝 Notes          : " + (rs.getString("notes") != null ? rs.getString("notes") : "-"));
+            System.out.println("📝 Notes          : " + rs.getString("notes"));
             System.out.println("📅 Created Date   : " + rs.getString("created_date"));
-
-            PreparedStatement psMeds = DBConnection.conn.prepareStatement(
-                    "SELECT medicine_name, dosage, morning, afternoon, night, days FROM prescription_medicines WHERE prescription_id = ?");
-            psMeds.setInt(1, prescriptionId);
-            ResultSet rsMeds = psMeds.executeQuery();
-            System.out.println("   💊 Prescribed Medicines:");
-            boolean hasMeds = false;
-            while (rsMeds.next()) {
-                hasMeds = true;
-                String medName = rsMeds.getString("medicine_name");
-                String dosage = rsMeds.getString("dosage");
-                boolean m = rsMeds.getBoolean("morning");
-                boolean a = rsMeds.getBoolean("afternoon");
-                boolean n = rsMeds.getBoolean("night");
-                int days = rsMeds.getInt("days");
-
-                StringBuilder sched = new StringBuilder();
-                if (m) sched.append("☀️ Morning ");
-                if (a) sched.append("🌤️ Afternoon ");
-                if (n) sched.append("🌙 Night ");
-                if (sched.length() == 0) sched.append("As Needed");
-
-                System.out.printf("      • %-20s | Dosage: %-10s | Schedule: %-30s | Duration: %d days\n", medName, dosage, sched.toString().trim(), days);
-            }
-            if (!hasMeds) {
-                System.out.println("      (No specific medicines listed)");
-            }
-            rsMeds.close();
-            psMeds.close();
-            System.out.println("-----------------------------------------------------------------------------------------");
+            System.out.println("----------------------------------------");
         }
         if (!found) {
             System.out.println("📭 No prescriptions found.");
@@ -359,7 +258,6 @@ public class Patient extends User {
         stmt.close();
     }
 
-    // Displays the assigned diet plans.
     public void viewDietPlan() throws Exception {
         int patientId = getPatientIdByUserId(this.userId);
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
@@ -368,38 +266,15 @@ public class Patient extends User {
         CallableStatement stmt = DBConnection.conn.prepareCall("{call ViewDietPlans(?)}");
         stmt.setInt(1, patientId);
         ResultSet rs = stmt.executeQuery();
-        System.out.println("\n🥗 --- Assigned Diet Plan Details ---");
+        System.out.println("\n🥗 --- Diet Plan ---");
         boolean found = false;
-        java.util.HashSet<String> displayedDiseases = new java.util.HashSet<>();
-
         while (rs.next()) {
-            String inst = rs.getString("instructions");
-            String breakfast = rs.getString("breakfast");
-
-            String diseaseAssigned = getCleanDiseaseForDiet(patientId, inst, breakfast, DBConnection.conn);
-
-            // Deduplicate: If diet for this disease is already displayed, skip duplicates
-            if (displayedDiseases.contains(diseaseAssigned.toLowerCase())) {
-                continue;
-            }
-            displayedDiseases.add(diseaseAssigned.toLowerCase());
             found = true;
-
-            String cleanInstructions = (inst != null) ? inst : "-";
-            if (cleanInstructions.contains(" | Avoid:")) {
-                cleanInstructions = cleanInstructions.substring(cleanInstructions.indexOf(" | Avoid:") + 3).trim();
-            } else if (cleanInstructions.contains("Avoid:")) {
-                cleanInstructions = cleanInstructions.substring(cleanInstructions.indexOf("Avoid:")).trim();
-            }
-
-            System.out.println("🔬 Assigned For Disease: " + diseaseAssigned);
-            System.out.println("🍳 Breakfast            : " + rs.getString("breakfast"));
-            System.out.println("🍲 Lunch                : " + rs.getString("lunch"));
-            System.out.println("🍿 Evening Snacks       : " + (rs.getString("snacks") != null ? rs.getString("snacks") : "-"));
-            System.out.println("🍛 Dinner               : " + rs.getString("dinner"));
-            System.out.println("💧 Daily Water          : " + (rs.getString("water") != null ? rs.getString("water") : "-"));
-            System.out.println("📝 Instructions         : " + cleanInstructions);
-            System.out.println("------------------------------------------------------------------");
+            System.out.println("🍳 Breakfast   : " + rs.getString("breakfast"));
+            System.out.println("🍲 Lunch       : " + rs.getString("lunch"));
+            System.out.println("🍛 Dinner      : " + rs.getString("dinner"));
+            System.out.println("📝 Instructions: " + rs.getString("instructions"));
+            System.out.println("----------------------------------------");
         }
         if (!found) {
             System.out.println("📭 No diet plan assigned.");
@@ -408,85 +283,6 @@ public class Patient extends User {
         stmt.close();
     }
 
-    // Identifies the disease associated with a diet plan.
-    private static String getCleanDiseaseForDiet(int patientId, String inst, String breakfast, java.sql.Connection conn) {
-        if (inst != null && inst.contains("Target Disease/Condition:")) {
-            int start = inst.indexOf("Target Disease/Condition:") + "Target Disease/Condition:".length();
-            int end = inst.indexOf(" | ", start);
-            String tag = (end != -1) ? inst.substring(start, end).trim() : inst.substring(start).trim();
-            if (!tag.isEmpty() && !tag.equalsIgnoreCase("General Health")) {
-                return normalizeDiseaseName(tag);
-            }
-        } else if (inst != null && inst.contains("Target Condition:")) {
-            int start = inst.indexOf("Target Condition:") + "Target Condition:".length();
-            int end = inst.indexOf(" | ", start);
-            String tag = (end != -1) ? inst.substring(start, end).trim() : inst.substring(start).trim();
-            if (!tag.isEmpty() && !tag.equalsIgnoreCase("General Health")) {
-                return normalizeDiseaseName(tag);
-            }
-        }
-
-        String combined = ((inst != null ? inst : "") + " " + (breakfast != null ? breakfast : "")).toLowerCase();
-        if (combined.contains("salt") || combined.contains("bp") || combined.contains("hypertension") || combined.contains("pressure") || combined.contains("low-sodium")) {
-            return "High BP";
-        }
-        if (combined.contains("diabet") || combined.contains("sweet") || combined.contains("sugar") || combined.contains("thepla") || combined.contains("ragi")) {
-            return "Diabetes";
-        }
-        if (combined.contains("dengue") || combined.contains("papaya") || combined.contains("kiwi") || combined.contains("coconut")) {
-            return "Dengue";
-        }
-        if (combined.contains("kidney") || combined.contains("potassium") || combined.contains("renal")) {
-            return "Kidney Disease";
-        }
-        if (combined.contains("pregnan") || combined.contains("sprout") || combined.contains("folic")) {
-            return "Pregnancy";
-        }
-
-        try {
-            PreparedStatement psHist = conn.prepareStatement(
-                    "SELECT disease FROM medical_history WHERE patient_id = ? AND disease IS NOT NULL AND TRIM(disease) != '' ORDER BY history_id DESC LIMIT 1");
-            psHist.setInt(1, patientId);
-            ResultSet rsHist = psHist.executeQuery();
-            if (rsHist.next()) {
-                String d = rsHist.getString("disease").trim();
-                rsHist.close();
-                psHist.close();
-                if (!d.isEmpty()) {
-                    return normalizeDiseaseName(d);
-                }
-            } else {
-                rsHist.close();
-                psHist.close();
-            }
-        } catch (Exception e) {
-        }
-
-        return "General Health";
-    }
-
-    // Formats disease names into a standard form.
-    private static String normalizeDiseaseName(String raw) {
-        String lower = raw.toLowerCase();
-        if (lower.contains("bp") || lower.contains("hypertension") || lower.contains("pressure")) {
-            return "High BP";
-        }
-        if (lower.contains("diabet") || lower.contains("sugar")) {
-            return "Diabetes";
-        }
-        if (lower.contains("dengue")) {
-            return "Dengue";
-        }
-        if (lower.contains("kidney")) {
-            return "Kidney Disease";
-        }
-        if (lower.contains("pregnan")) {
-            return "Pregnancy";
-        }
-        return raw;
-    }
-
-    // Displays the patient's lab and medical reports.
     public void viewReports() throws Exception {
         int patientId = getPatientIdByUserId(this.userId);
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
@@ -513,8 +309,163 @@ public class Patient extends User {
         stmt.close();
     }
 
-    // Opens the patient dashboard.
     public void viewDashboard() throws Exception {
         new Dashboard().showPatientDashboard();
+    }
+
+    public void displayQueueStatus() throws Exception {
+        int patientId = getPatientIdByUserId(this.userId);
+        if (patientId == 0) {
+            System.out.println("⚠️ Patient profile not found.");
+            return;
+        }
+
+        if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
+            DBConnection.initialize();
+        }
+
+        // 1. Find next booked appointment
+        PreparedStatement ps = DBConnection.conn.prepareStatement(
+                "SELECT a.appointment_id, a.doctor_id, d.name AS doctor_name, d.availability AS doctor_avail, " +
+                        "a.appointment_date, a.appointment_time, a.token_number " +
+                        "FROM appointments a " +
+                        "JOIN doctors d ON a.doctor_id = d.doctor_id " +
+                        "WHERE a.patient_id = ? AND a.status = 'Booked' AND a.appointment_date >= CURDATE() " +
+                        "ORDER BY a.appointment_date ASC, a.appointment_time ASC LIMIT 1"
+        );
+        ps.setInt(1, patientId);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            int appId = rs.getInt("appointment_id");
+            int doctorId = rs.getInt("doctor_id");
+            String doctorName = rs.getString("doctor_name");
+            String doctorAvail = rs.getString("doctor_avail");
+            java.sql.Date appDate = rs.getDate("appointment_date");
+            java.sql.Time appTime = rs.getTime("appointment_time");
+            int myToken = rs.getInt("token_number");
+
+            System.out.println("\n🎟️ --- Live Queue & Next Appointment Info ---");
+            System.out.println("👨‍⚕️ Doctor Name      : " + doctorName);
+            System.out.println("⏰ Doctor Hours      : " + (doctorAvail != null && !doctorAvail.isEmpty() ? doctorAvail : "Not Specified"));
+            System.out.println("📅 Appointment Date  : " + appDate);
+            System.out.println("⏰ Appointment Time  : " + appTime);
+            System.out.println("🎟️ Your Token Number : " + myToken);
+
+            // 2. Which token number is being treated currently
+            int treatedToken = -1;
+            PreparedStatement psTreated = DBConnection.conn.prepareStatement(
+                    "SELECT queue_number FROM queue WHERE doctor_id = ? AND status = 'In-progress' LIMIT 1"
+            );
+            psTreated.setInt(1, doctorId);
+            ResultSet rsTreated = psTreated.executeQuery();
+            if (rsTreated.next()) {
+                treatedToken = rsTreated.getInt("queue_number");
+            }
+            rsTreated.close();
+            psTreated.close();
+
+            if (treatedToken == -1) {
+                PreparedStatement psTreated2 = DBConnection.conn.prepareStatement(
+                        "SELECT t.token_number FROM tokens t JOIN appointments a ON t.appointment_id = a.appointment_id " +
+                                "WHERE a.doctor_id = ? AND t.status = 'Serving' LIMIT 1"
+                );
+                psTreated2.setInt(1, doctorId);
+                ResultSet rsTreated2 = psTreated2.executeQuery();
+                if (rsTreated2.next()) {
+                    treatedToken = rsTreated2.getInt("token_number");
+                }
+                rsTreated2.close();
+                psTreated2.close();
+            }
+
+            if (treatedToken != -1) {
+                System.out.println("🩺 Token Being Treated: " + treatedToken);
+            } else {
+                System.out.println("🩺 Token Being Treated: None (No patient is currently in treatment)");
+            }
+
+            // 3. How much left before me in queue
+            // Check if patient is in active queue
+            PreparedStatement psQueue = DBConnection.conn.prepareStatement(
+                    "SELECT queue_id, priority_level, arrival_time FROM queue WHERE patient_id = ? AND doctor_id = ? AND status = 'Waiting' LIMIT 1"
+            );
+            psQueue.setInt(1, patientId);
+            psQueue.setInt(2, doctorId);
+            ResultSet rsQueue = psQueue.executeQuery();
+            boolean inQueue = false;
+            int queueId = -1;
+            String priorityLevel = "";
+            java.sql.Timestamp arrivalTime = null;
+            if (rsQueue.next()) {
+                inQueue = true;
+                queueId = rsQueue.getInt("queue_id");
+                priorityLevel = rsQueue.getString("priority_level");
+                arrivalTime = rsQueue.getTimestamp("arrival_time");
+            }
+            rsQueue.close();
+            psQueue.close();
+
+            int peopleAhead = 0;
+            if (inQueue) {
+                PreparedStatement psAhead = DBConnection.conn.prepareStatement(
+                        "SELECT COUNT(*) FROM queue " +
+                                "WHERE doctor_id = ? AND status = 'Waiting' " +
+                                "AND (" +
+                                "  FIELD(priority_level, 'Emergency','Pregnant','Senior Citizen','Child','Disabled','Normal') < FIELD(?, 'Emergency','Pregnant','Senior Citizen','Child','Disabled','Normal') " +
+                                "  OR (" +
+                                "    FIELD(priority_level, 'Emergency','Pregnant','Senior Citizen','Child','Disabled','Normal') = FIELD(?, 'Emergency','Pregnant','Senior Citizen','Child','Disabled','Normal') " +
+                                "    AND arrival_time < ?" +
+                                "  )" +
+                                ")"
+                );
+                psAhead.setInt(1, doctorId);
+                psAhead.setString(2, priorityLevel);
+                psAhead.setString(3, priorityLevel);
+                psAhead.setTimestamp(4, arrivalTime);
+                ResultSet rsAhead = psAhead.executeQuery();
+                if (rsAhead.next()) {
+                    peopleAhead = rsAhead.getInt(1);
+                }
+                rsAhead.close();
+                psAhead.close();
+                System.out.println("🚶 People Ahead of You: " + peopleAhead + " (Active in live queue)");
+            } else {
+                PreparedStatement psAheadApp = DBConnection.conn.prepareStatement(
+                        "SELECT COUNT(*) FROM appointments " +
+                                "WHERE doctor_id = ? AND appointment_date = ? AND status = 'Booked' AND token_number < ?"
+                );
+                psAheadApp.setInt(1, doctorId);
+                psAheadApp.setDate(2, appDate);
+                psAheadApp.setInt(3, myToken);
+                ResultSet rsAheadApp = psAheadApp.executeQuery();
+                if (rsAheadApp.next()) {
+                    peopleAhead = rsAheadApp.getInt(1);
+                }
+                rsAheadApp.close();
+                psAheadApp.close();
+                System.out.println("🚶 Booked Appointments Ahead of You: " + peopleAhead + " (Not yet checked-in to active queue)");
+            }
+
+            // 4. Time left for that particular doctor
+            int waitingTime = 0;
+            if (inQueue && queueId != -1) {
+                PreparedStatement psTime = DBConnection.conn.prepareStatement("SELECT CalculateWaitingTime(?)");
+                psTime.setInt(1, queueId);
+                ResultSet rsTime = psTime.executeQuery();
+                if (rsTime.next()) {
+                    waitingTime = rsTime.getInt(1);
+                }
+                rsTime.close();
+                psTime.close();
+            } else {
+                waitingTime = (peopleAhead + 1) * 15; // fallback estimation: 15 mins per ahead patient + self
+            }
+            System.out.println("⏰ Estimated Waiting Time: " + waitingTime + " minutes");
+            System.out.println("----------------------------------------------");
+        } else {
+            System.out.println("📭 No upcoming booked appointments found.");
+        }
+        rs.close();
+        ps.close();
     }
 }
