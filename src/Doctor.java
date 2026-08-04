@@ -1,12 +1,13 @@
-import java.sql.*;
-import java.util.*;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.Scanner;
 
 public class Doctor extends User {
     String specialization = "";
     int experience = 0;
     boolean available = true;
 
-    // Load doctor's information from database
     public void loadDoctorDetails() throws Exception {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
@@ -25,12 +26,6 @@ public class Doctor extends User {
         ps.close();
     }
 
-    public void viewLiveQueue() throws Exception {
-        int doctorId = getDoctorId();
-        new QueueManager().displayQueue(doctorId);
-    }
-
-    // Return doctor ID using logged-in user ID
     private int getDoctorIdByUserId(int userId) throws Exception {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
@@ -47,22 +42,19 @@ public class Doctor extends User {
         return doctorId;
     }
 
-
     public int getDoctorId() throws Exception {
         return getDoctorIdByUserId(this.userId);
     }
 
-    // Display all scheduled appointments
     public void viewAppointments() throws Exception {
         int doctorId = getDoctorIdByUserId(this.userId);
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
         }
-        PreparedStatement ps = DBConnection.conn.prepareStatement(
-                "SELECT * FROM appointments WHERE doctor_id = ? AND appointment_date >= CURDATE() AND status != 'Cancelled' ORDER BY appointment_date ASC, appointment_time ASC");
-        ps.setInt(1, doctorId);
-        ResultSet rs = ps.executeQuery();
-        System.out.println("\n📅 --- Scheduled Appointments (Today & Upcoming) ---");
+        CallableStatement stmt = DBConnection.conn.prepareCall("{call GetDoctorAppointments(?)}");
+        stmt.setInt(1, doctorId);
+        ResultSet rs = stmt.executeQuery();
+        System.out.println("\n📅 --- Today's Appointments ---");
         boolean found = false;
         while (rs.next()) {
             found = true;
@@ -72,18 +64,17 @@ public class Doctor extends User {
             System.out.println("⏰ Time          : " + rs.getString("appointment_time"));
             System.out.println("🚦 Status        : " + rs.getString("status"));
             System.out.println("🎟️ Token Number  : " + rs.getInt("token_number"));
-            System.out.println("🚨 Priority      : " + (rs.getString("priority") != null ? rs.getString("priority") : "-"));
-            System.out.println("💬 Remarks       : " + (rs.getString("remarks") != null ? rs.getString("remarks") : "-"));
+            System.out.println("🚨 Priority      : " + rs.getString("priority"));
+            System.out.println("💬 Remarks       : " + rs.getString("remarks"));
             System.out.println("----------------------------------------");
         }
         if (!found) {
-            System.out.println("📭 No upcoming or today's appointments scheduled.");
+            System.out.println("📭 No appointments scheduled.");
         }
         rs.close();
-        ps.close();
+        stmt.close();
     }
 
-    // Create a medical report for patient
     public void createReport() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n📝 --- Create Medical Report ---");
@@ -117,7 +108,6 @@ public class Doctor extends User {
         Main.logActivity(this.userId, "INSERT", "medical_history");
     }
 
-    // Create prescription and add medicines
     public void createPrescription() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n💊 --- Create Prescription ---");
@@ -249,12 +239,10 @@ public class Doctor extends User {
         }
     }
 
-    // Generate diet plan
     public void createDietPlan() throws Exception {
         new DietPlan().generateDiet();
     }
 
-    // Send message to patient
     public void replyPatient() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n💬 --- Patient Discussions ---");
@@ -297,12 +285,10 @@ public class Doctor extends User {
         System.out.println("✅ Reply sent successfully.");
     }
 
-    // Show doctor's dashboard
     public void viewDashboard() throws Exception {
         new Dashboard().showDoctorDashboard();
     }
 
-    // Display follow-up requests and reply
     public void showFollowUpsAndReply() throws Exception {
         int doctorId = getDoctorId();
         Scanner sc = new Scanner(System.in);
@@ -416,5 +402,45 @@ public class Doctor extends User {
             rsCheck.close();
             psCheck.close();
         }
+    }
+
+    public void showNextAppointment() throws Exception {
+        int doctorId = getDoctorId();
+        if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
+            DBConnection.initialize();
+        }
+        PreparedStatement ps = DBConnection.conn.prepareStatement(
+                "SELECT a.appointment_id, a.patient_id, CONCAT(p.first_name, ' ', p.last_name) AS patient_name, " +
+                        "a.appointment_date, a.appointment_time, a.status, a.token_number, a.priority, a.remarks " +
+                        "FROM appointments a " +
+                        "JOIN patients p ON a.patient_id = p.patient_id " +
+                        "WHERE a.doctor_id = ? AND a.status = 'Booked' AND a.appointment_date >= CURDATE() " +
+                        "ORDER BY a.appointment_date ASC, a.token_number ASC"
+        );
+        ps.setInt(1, doctorId);
+        ResultSet rs = ps.executeQuery();
+        System.out.println("\n📅 --- Next / Upcoming Appointments (Sorted by Token Number) ---");
+        boolean found = false;
+        while (rs.next()) {
+            found = true;
+            System.out.println("🎟️ Token Number  : " + rs.getInt("token_number"));
+            System.out.println("🔑 Appointment ID: " + rs.getInt("appointment_id"));
+            System.out.println("👤 Patient Name  : " + rs.getString("patient_name") + " (ID: " + rs.getInt("patient_id") + ")");
+            System.out.println("📅 Date          : " + rs.getString("appointment_date"));
+            System.out.println("⏰ Time          : " + rs.getString("appointment_time"));
+            System.out.println("🚨 Priority      : " + rs.getString("priority"));
+            System.out.println("💬 Remarks       : " + rs.getString("remarks"));
+            System.out.println("----------------------------------------------------------------");
+        }
+        if (!found) {
+            System.out.println("📭 No upcoming booked appointments found.");
+        }
+        rs.close();
+        ps.close();
+    }
+
+    public void viewLiveQueue() throws Exception {
+        int doctorId = getDoctorId();
+        new QueueManager().displayQueue(doctorId);
     }
 }

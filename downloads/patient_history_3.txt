@@ -1,0 +1,149 @@
+=========================================================================
+         🏥 HEALTHCONNECT SMART HOSPITAL CARE SYSTEM                    
+                   PATIENT HISTORY FILE REPORT                           
+=========================================================================
+Generated Date/Time : 2026-08-04 11:30:56
+Downloaded By User  : user2 (Role: Doctor)
+=========================================================================
+
+📋 1. PATIENT PROFILE INFORMATION
+-------------------------------------------------------------------------
+Patient ID        : 3
+Health ID         : HC00003
+Full Name         : Nishi Desai
+Gender            : M
+Date of Birth     : 1989-10-19
+Blood Group       : A-
+Contact Phone     : 8888888888
+Emergency Contact : 9328872698
+Height / Weight   : 182.00 cm / 61.00 kg
+Address           : Area 3
+-------------------------------------------------------------------------
+
+📋 2. MEDICAL HISTORY & DIAGNOSES
+-------------------------------------------------------------------------
+  • History ID  : 26
+    Disease     : Diabetes
+    Description : Routine history
+    Allergies   : Penicillin
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  • History ID  : 116
+    Disease     : Hypertension
+    Description : Routine history
+    Allergies   : None
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-------------------------------------------------------------------------
+
+📅 3. APPOINTMENTS HISTORY
+-------------------------------------------------------------------------
+  • Appointment ID : 177
+    Doctor Name    : Dr. Dr Mihir Joshi
+    Date & Time    : 2026-08-08 @ 17:20:01
+    Status         : Booked
+    Remarks        : Leg Pain
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  • Appointment ID : 84
+    Doctor Name    : Dr. Dr Jinal Patel
+    Date & Time    : 2025-07-31 @ 15:45:00
+    Status         : Booked
+    Remarks        : Follow up visit
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-------------------------------------------------------------------------
+
+💊 4. PRESCRIPTION & MEDICATION HISTORY
+-------------------------------------------------------------------------
+  • Prescription ID : 16
+    Doctor Name     : Dr. Dr Dhruv Desai
+    Diagnosis       : Knee Pain
+    Notes           : Continue medication
+    Created Date    : 2025-07-30
+    Medicines       :
+      - Insulin (1 tablet) for 12 days
+      - Iron (1 tablet) for 9 days
+      - Insulin (1 tablet) for 9 days
+      - Telmisartan (1 tablet) for 3 days
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-------------------------------------------------------------------------
+
+🥗 5. ASSIGNED DIET PLANS
+-------------------------------------------------------------------------
+  • Diet Plan ID : 100
+    Doctor Name  : Dr. Dr Soham Rao
+    Breakfast    : Oats + fruit
+    Lunch        : Gujarati thali
+    Snacks       : Nuts
+    Dinner       : Soup + roti
+    Water Intake : 2.5 L
+    Instructions : Avoid fried food
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  • Diet Plan ID : 94
+    Doctor Name  : Dr. Dr Soham Rao
+    Breakfast    : Oats + fruit
+    Lunch        : Gujarati thali
+    Snacks       : Nuts
+    Dinner       : Soup + roti
+    Water Intake : 2.5 L
+    Instructions : Avoid fried food
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-------------------------------------------------------------------------
+
+💬 6. CONSULTATION & MESSAGE HISTORY
+-------------------------------------------------------------------------
+  • Follow-up ID : 101
+    Doctor Name  : Dr. Dr Kavya Bhatt
+    Message      : Post-surgery review
+    Next Visit   : 2025-08-04
+    Status       : Pending
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  • Follow-up ID : 2
+    Doctor Name  : Dr. Dr Mitali Trivedi
+    Message      : Review progress
+    Next Visit   : 2025-08-25
+    Status       : Done
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-------------------------------------------------------------------------
+
+🧪 7. LAB & DIAGNOSTIC REPORTS
+-------------------------------------------------------------------------
+  • Test ID     : 75
+    Test Name   : X-Ray Knee
+    Status      : Completed
+    Report File : /reports/75.pdf
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-------------------------------------------------------------------------
+
+💳 8. BILLING & PAYMENTS HISTORY
+-------------------------------------------------------------------------
+  • Payment ID     : 141
+    Appointment ID : 141
+    Amount         : Rs. 2515.61
+    Payment Mode   : UPI
+    Status         : Paid
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  • Payment ID     : 78
+    Appointment ID : 78
+    Amount         : Rs. 2859.89
+    Payment Mode   : UPI
+    Status         : Refunded
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  • Payment ID     : 45
+    Appointment ID : 45
+    Amount         : Rs. 449.38
+    Payment Mode   : Card
+    Status         : Paid
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  • Payment ID     : 18
+    Appointment ID : 18
+    Amount         : Rs. 2179.09
+    Payment Mode   : Card
+    Status         : Paid
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  • Payment ID     : 16
+    Appointment ID : 16
+    Amount         : Rs. 1753.73
+    Payment Mode   : UPI
+    Status         : Pending
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-------------------------------------------------------------------------
+               *** END OF PATIENT HISTORY FILE ***                       
+=========================================================================

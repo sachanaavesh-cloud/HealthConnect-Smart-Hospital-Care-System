@@ -1,10 +1,8 @@
-import java.sql.*;
-import java.util.*;
+import java.util.Scanner;
 
 public class Main {
     public static User loggedInUser = null;
 
-    // Record user activity in the audit log table
     public static void logActivity(int userId, String operation, String tableName) {
         try {
             if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
@@ -17,11 +15,10 @@ public class Main {
             ps.executeUpdate();
             ps.close();
         } catch (Exception e) {
-            System.out.println(e);
+            // Ignore
         }
     }
 
-    // Program execution starts here
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         System.out.println("=========================================================================");
@@ -72,8 +69,7 @@ public class Main {
                                 patient.loadPatientDetails();
                                 loggedInUser = patient;
                             } else {
-                                System.out.println("\nℹ️ Notice: Features for your role (" + baseUser.role + ") are going to be added soon!");
-                                loggedInUser = null;
+                                loggedInUser = baseUser;
                             }
                         }
                     } else if (opt.equals("2")) {
@@ -91,7 +87,6 @@ public class Main {
         }
     }
 
-    // Display menu according to logged-in user role
     public static void showMenu() throws Exception {
         Scanner sc = new Scanner(System.in);
         if (loggedInUser instanceof Patient) {
@@ -100,10 +95,19 @@ public class Main {
             showDoctorMenu((Doctor) loggedInUser);
         } else if (loggedInUser instanceof Admin) {
             showAdminMenu((Admin) loggedInUser);
+        } else {
+            System.out.println("\n⚙️ --- User Menu ---");
+            System.out.println("1. 👤 Update Profile");
+            System.out.println("2. 🔐 Change Password");
+            System.out.println("3. 🚪 Logout");
+            System.out.print("👉 Choose an option: ");
+            String opt = sc.nextLine().trim();
+            if (opt.equals("1")) loggedInUser.updateProfile();
+            else if (opt.equals("2")) loggedInUser.changePassword();
+            else if (opt.equals("3")) loggedInUser.logout();
         }
     }
 
-    // Display patient portal menu
     private static void showPatientMenu(Patient p) throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n====================================");
@@ -125,8 +129,10 @@ public class Main {
         System.out.println("14. 💳 Check / Pay Bills");
         System.out.println("15. 👤 Update Profile");
         System.out.println("16. 🔐 Change Password");
-        System.out.println("17. 🚪 Logout");
-        System.out.print("👉 Enter your choice (1-17): ");
+        System.out.println("17. 🎟️ Check Live Queue Status");
+        System.out.println("18. 📥 Download Patient History File (IO)");
+        System.out.println("19. 🚪 Logout");
+        System.out.print("👉 Enter your choice (1-19): ");
         String choice = sc.nextLine().trim();
 
         switch (choice) {
@@ -200,15 +206,20 @@ public class Main {
                 p.changePassword();
                 break;
             case "17":
+                p.displayQueueStatus();
+                break;
+            case "18":
+                p.downloadPatientHistory();
+                break;
+            case "19":
                 p.logout();
                 loggedInUser = null;
                 break;
             default:
-                System.out.println("⚠️ Invalid option. Please choose 1-17.");
+                System.out.println("⚠️ Invalid option. Please choose 1-19.");
         }
     }
 
-    // Display doctor portal menu
     private static void showDoctorMenu(Doctor d) throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n====================================");
@@ -224,8 +235,10 @@ public class Main {
         System.out.println("8.  ⏰ Update Available Hours");
         System.out.println("9.  👤 Update Profile");
         System.out.println("10. 🔐 Change Password");
-        System.out.println("11. 🚪 Logout");
-        System.out.print("👉 Enter your choice (1-11): ");
+        System.out.println("11. 📅 Show Next Appointment");
+        System.out.println("12. 📥 Download Patient History File (IO)");
+        System.out.println("13. 🚪 Logout");
+        System.out.print("👉 Enter your choice (1-13): ");
         String choice = sc.nextLine().trim();
 
         switch (choice) {
@@ -236,33 +249,13 @@ public class Main {
                 d.viewAppointments();
                 break;
             case "3":
-                MedicalRecord mrDoc = new MedicalRecord();
-                while (true) {
-                    System.out.println("\n📋 --- Manage Medical History Records ---");
-                    System.out.println("1. ➕ Add Medical Record");
-                    System.out.println("2. ⚙️ Update Medical Record");
-                    System.out.println("3. 📋 View Medical Record");
-                    System.out.print("👉 Choose an option (1-3): ");
-                    String mrOpt = sc.nextLine().trim();
-                    if (mrOpt.equals("1")) {
-                        mrDoc.addRecord();
-                        break;
-                    } else if (mrOpt.equals("2")) {
-                        mrDoc.updateRecord();
-                        break;
-                    } else if (mrOpt.equals("3")) {
-                        mrDoc.viewRecord();
-                        break;
-                    } else {
-                        System.out.println("⚠️ Error: Choice must be between 1 and 3. Please try again.");
-                    }
-                }
+                d.createReport();
                 break;
             case "4":
                 d.createPrescription();
                 break;
             case "5":
-                new DietPlan().generateDiet();
+                d.createDietPlan();
                 break;
             case "6":
                 d.showFollowUpsAndReply();
@@ -290,15 +283,20 @@ public class Main {
                 d.changePassword();
                 break;
             case "11":
+                d.showNextAppointment();
+                break;
+            case "12":
+                d.downloadPatientHistory();
+                break;
+            case "13":
                 d.logout();
                 loggedInUser = null;
                 break;
             default:
-                System.out.println("⚠️ Invalid option. Please choose 1-11.");
+                System.out.println("⚠️ Invalid option. Please choose 1-13.");
         }
     }
 
-    // Display admin portal menu
     private static void showAdminMenu(Admin a) throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n====================================");
@@ -347,57 +345,29 @@ public class Main {
                 break;
             case "8":
                 QueueManager qm = new QueueManager();
-                while (true) {
-                    System.out.println("\n🚦 --- Manage Waiting Queue ---");
-                    System.out.println("1. 🚦 Display Queue");
-                    System.out.println("2. ➕ Add Patient to Queue");
-                    System.out.println("3. ➖ Remove Patient from Queue");
-                    System.out.println("4. 🚨 Prioritize Emergency Patient");
-                    System.out.println("5. ⏰ Calculate Waiting Time");
-                    System.out.print("👉 Choose an option (1-5): ");
-                    String qOpt = sc.nextLine().trim();
-                    if (qOpt.equals("1")) {
-                        qm.displayQueue();
-                        break;
-                    } else if (qOpt.equals("2")) {
-                        qm.addPatient();
-                        break;
-                    } else if (qOpt.equals("3")) {
-                        qm.removePatient();
-                        break;
-                    } else if (qOpt.equals("4")) {
-                        qm.prioritizeEmergency();
-                        break;
-                    } else if (qOpt.equals("5")) {
-                        qm.calculateWaitingTime();
-                        break;
-                    } else {
-                        System.out.println("⚠️ Error: Choice must be between 1 and 5. Please try again.");
-                    }
-                }
+                System.out.println("1. 🚦 Display Queue");
+                System.out.println("2. ➕ Add Patient to Queue");
+                System.out.println("3. ➖ Remove Patient from Queue");
+                System.out.println("4. 🚨 Prioritize Emergency Patient");
+                System.out.println("5. ⏰ Calculate Waiting Time");
+                System.out.print("👉 Choose: ");
+                String qOpt = sc.nextLine().trim();
+                if (qOpt.equals("1")) qm.displayQueue();
+                else if (qOpt.equals("2")) qm.addPatient();
+                else if (qOpt.equals("3")) qm.removePatient();
+                else if (qOpt.equals("4")) qm.prioritizeEmergency();
+                else if (qOpt.equals("5")) qm.calculateWaitingTime();
                 break;
             case "9":
                 MedicalRecord mr = new MedicalRecord();
-                while (true) {
-                    System.out.println("\n📋 --- Manage Medical History Records ---");
-                    System.out.println("1. ➕ Add Medical Record");
-                    System.out.println("2. ⚙️ Update Medical Record");
-                    System.out.println("3. 📋 View Medical Record");
-                    System.out.print("👉 Choose an option (1-3): ");
-                    String mrOpt = sc.nextLine().trim();
-                    if (mrOpt.equals("1")) {
-                        mr.addRecord();
-                        break;
-                    } else if (mrOpt.equals("2")) {
-                        mr.updateRecord();
-                        break;
-                    } else if (mrOpt.equals("3")) {
-                        mr.viewRecord();
-                        break;
-                    } else {
-                        System.out.println("⚠️ Error: Choice must be between 1 and 3. Please try again.");
-                    }
-                }
+                System.out.println("1. ➕ Add Medical Record");
+                System.out.println("2. ⚙️ Update Medical Record");
+                System.out.println("3. 📋 View Medical Record");
+                System.out.print("👉 Choose: ");
+                String mrOpt = sc.nextLine().trim();
+                if (mrOpt.equals("1")) mr.addRecord();
+                else if (mrOpt.equals("2")) mr.updateRecord();
+                else if (mrOpt.equals("3")) mr.viewRecord();
                 break;
             case "10":
                 a.manageBilling();
@@ -407,53 +377,27 @@ public class Main {
                 break;
             case "12":
                 LabTest lt = new LabTest();
-                while (true) {
-                    System.out.println("\n🧪 --- Manage Lab Tests ---");
-                    System.out.println("1. 🧪 Book Lab Test");
-                    System.out.println("2. 🚦 Update Lab Test Status");
-                    System.out.println("3. 💾 Save Lab Test Result");
-                    System.out.println("4. 📋 View Lab Result");
-                    System.out.print("👉 Choose an option (1-4): ");
-                    String ltOpt = sc.nextLine().trim();
-                    if (ltOpt.equals("1")) {
-                        lt.bookLabTest();
-                        break;
-                    } else if (ltOpt.equals("2")) {
-                        lt.updateStatus();
-                        break;
-                    } else if (ltOpt.equals("3")) {
-                        lt.updateResult();
-                        break;
-                    } else if (ltOpt.equals("4")) {
-                        lt.viewResult();
-                        break;
-                    } else {
-                        System.out.println("⚠️ Error: Choice must be between 1 and 4. Please try again.");
-                    }
-                }
+                System.out.println("1. 🧪 Book Lab Test");
+                System.out.println("2. 🚦 Update Lab Test Status");
+                System.out.println("3. 💾 Save Lab Test Result");
+                System.out.println("4. 📋 View Lab Result");
+                System.out.print("👉 Choose: ");
+                String ltOpt = sc.nextLine().trim();
+                if (ltOpt.equals("1")) lt.bookLabTest();
+                else if (ltOpt.equals("2")) lt.updateStatus();
+                else if (ltOpt.equals("3")) lt.updateResult();
+                else if (ltOpt.equals("4")) lt.viewResult();
                 break;
             case "13":
                 AuditLog al = new AuditLog();
-                while (true) {
-                    System.out.println("\n📜 --- System Audit Logs ---");
-                    System.out.println("1. 📋 View Last 50 Logs");
-                    System.out.println("2. 🔍 Search Logs by User");
-                    System.out.println("3. 🗑️ Purge/Delete Old Logs");
-                    System.out.print("👉 Choose an option (1-3): ");
-                    String alOpt = sc.nextLine().trim();
-                    if (alOpt.equals("1")) {
-                        al.viewLogs();
-                        break;
-                    } else if (alOpt.equals("2")) {
-                        al.searchLogs();
-                        break;
-                    } else if (alOpt.equals("3")) {
-                        al.deleteOldLogs();
-                        break;
-                    } else {
-                        System.out.println("⚠️ Error: Choice must be between 1 and 3. Please try again.");
-                    }
-                }
+                System.out.println("1. 📋 View Last 50 Logs");
+                System.out.println("2. 🔍 Search Logs by User");
+                System.out.println("3. 🗑️ Purge/Delete Old Logs");
+                System.out.print("👉 Choose: ");
+                String alOpt = sc.nextLine().trim();
+                if (alOpt.equals("1")) al.viewLogs();
+                else if (alOpt.equals("2")) al.searchLogs();
+                else if (alOpt.equals("3")) al.deleteOldLogs();
                 break;
             case "14":
                 a.updateProfile();
