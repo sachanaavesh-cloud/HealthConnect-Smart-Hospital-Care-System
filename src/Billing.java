@@ -4,106 +4,10 @@ import java.util.*;
 // Represents the billing system for generating bills, processing payments, and viewing billing details.
 public class Billing {
     int billId = 0;
-    Patient patient = new Patient();
-    Appointment appointment = new Appointment();
-    double consultationFee = 0.0;
-    double labCharges = 0.0;
-    double medicineCharges = 0.0;
-    double otherCharges = 0.0;
     double totalAmount = 0.0;
     String paymentStatus = "";
     String paymentMethod = "";
     String billDate = "";
-
-    // Generates a new bill for a patient using the GenerateBill stored procedure.
-    public void generateBill() throws Exception {
-        Scanner sc = new Scanner(System.in);
-        System.out.println("\n💳 --- Generate Bill ---");
-
-        int patientId = 0;
-        while (true) {
-            System.out.print("👉 Enter Patient ID: ");
-            try {
-                patientId = Integer.parseInt(sc.nextLine().trim());
-                if (patientId > 0) {
-                    break;
-                }
-                System.out.println("⚠️ Error: Patient ID must be a positive integer.");
-            } catch (NumberFormatException e) {
-                System.out.println("⚠️ Error: Invalid number format. Please enter an integer.");
-            }
-        }
-
-        int appId = 0;
-        while (true) {
-            System.out.print("👉 Enter Appointment ID: ");
-            try {
-                appId = Integer.parseInt(sc.nextLine().trim());
-                if (appId > 0) {
-                    break;
-                }
-                System.out.println("⚠️ Error: Appointment ID must be a positive integer.");
-            } catch (NumberFormatException e) {
-                System.out.println("⚠️ Error: Invalid number format. Please enter an integer.");
-            }
-        }
-
-        double amount = 0.0;
-        while (true) {
-            System.out.print("💰 Enter Total Bill Amount: ");
-            try {
-                amount = Double.parseDouble(sc.nextLine().trim());
-                if (amount >= 0) {
-                    break;
-                }
-                System.out.println("⚠️ Error: Amount must be a positive number.");
-            } catch (NumberFormatException e) {
-                System.out.println("⚠️ Error: Invalid decimal format. Please enter a decimal.");
-            }
-        }
-
-        if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
-            DBConnection.initialize();
-        }
-        CallableStatement stmt = DBConnection.conn.prepareCall("{call GenerateBill(?, ?, ?)}");
-        stmt.setInt(1, patientId);
-        stmt.setInt(2, appId);
-        stmt.setDouble(3, amount);
-        stmt.execute();
-        stmt.close();
-        System.out.println("🎉 Bill generated successfully!");
-        Main.logActivity(1, "INSERT", "payments");
-    }
-
-    // Calculates the total bill amount for a specific appointment.
-    public void calculateTotal() throws Exception {
-        Scanner sc = new Scanner(System.in);
-
-        int appId = 0;
-        while (true) {
-            System.out.print("👉 Enter Appointment ID to calculate total payments: ");
-            try {
-                appId = Integer.parseInt(sc.nextLine().trim());
-                if (appId > 0) {
-                    break;
-                }
-                System.out.println("⚠️ Error: Appointment ID must be a positive integer.");
-            } catch (NumberFormatException e) {
-                System.out.println("⚠️ Error: Invalid number format. Please enter an integer.");
-            }
-        }
-
-        if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
-            DBConnection.initialize();
-        }
-        CallableStatement stmt = DBConnection.conn.prepareCall("{? = call CalculateBillTotal(?)}");
-        stmt.registerOutParameter(1, Types.DECIMAL);
-        stmt.setInt(2, appId);
-        stmt.execute();
-        double total = stmt.getDouble(1);
-        stmt.close();
-        System.out.println("💰 Total calculated bill amount: Rs. " + total);
-    }
 
     // Processes bill payment after validating the payment details and payment method.
     public void makePayment() throws Exception {

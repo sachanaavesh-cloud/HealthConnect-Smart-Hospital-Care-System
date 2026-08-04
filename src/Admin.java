@@ -3,8 +3,6 @@ import java.util.*;
 
 // Admin class for managing hospital system operations.
 public class Admin extends User {
-    String designation = "";
-    String accessLevel = "";
 
     // Adds a new doctor to the system.
     public void addDoctor() throws Exception {
@@ -133,10 +131,37 @@ public class Admin extends User {
             System.out.println("⚠️ Error: Please enter a valid email address.");
         }
 
-        System.out.print("👉 Enter Room Number: ");
-        String room = sc.nextLine();
-        System.out.print("👉 Enter Availability (e.g. Mon-Sat): ");
-        String avail = sc.nextLine();
+        String room = "";
+        while (true) {
+            System.out.print("👉 Enter Room Number: ");
+            room = sc.nextLine().trim();
+            boolean isValid = true;
+            if (room.length() != 3) {
+                isValid = false;
+            } else {
+                for (int i = 0; i < room.length(); i++) {
+                    char ch = room.charAt(i);
+                    if (ch < '0' || ch > '9') {
+                        isValid = false;
+                        break;
+                    }
+                }
+            }
+            if (isValid) {
+                break;
+            }
+            System.out.println("⚠️ Error: Room number must be exactly 3 digits.");
+        }
+
+        String avail = "";
+        while (true) {
+            System.out.print("👉 Enter Availability (e.g. Mon-Sat): ");
+            avail = sc.nextLine().trim();
+            if (!avail.isEmpty()) {
+                break;
+            }
+            System.out.println("⚠️ Error: Availability cannot be empty.");
+        }
 
         double fee = 0.0;
         while (true) {
@@ -427,6 +452,7 @@ public class Admin extends User {
             System.out.print("👉 Enter DOB (YYYY-MM-DD): ");
             dob = sc.nextLine().trim();
             boolean isValid = true;
+            boolean isFuture = false;
             if (dob.length() != 10 || dob.charAt(4) != '-' || dob.charAt(7) != '-') {
                 isValid = false;
             } else {
@@ -457,6 +483,13 @@ public class Admin extends User {
                         }
                         if (day > maxDays) {
                             isValid = false;
+                        }else {
+                            java.time.LocalDate inputDate = java.time.LocalDate.of(year, month, day);
+                            java.time.LocalDate today = java.time.LocalDate.now();
+                            if (inputDate.isAfter(today)) {
+                                isValid = false;
+                                isFuture = true;
+                            }
                         }
                     }
                 }
@@ -464,7 +497,11 @@ public class Admin extends User {
             if (isValid) {
                 break;
             }
-            System.out.println("⚠️ Error: Date must be a valid calendar date in YYYY-MM-DD format.");
+            if (isFuture) {
+                System.out.println("⚠️ Error: Birthdate cannot be greater than current date.");
+            } else {
+                System.out.println("⚠️ Error: Date must be a valid calendar date in YYYY-MM-DD format.");
+            }
         }
 
         System.out.print("👉 Enter Blood Group: ");
@@ -724,14 +761,16 @@ public class Admin extends User {
             psTok.close();
 
             // Delete prescription medicines
-            PreparedStatement psPM = DBConnection.conn.prepareStatement("DELETE FROM prescription_medicines WHERE prescription_id IN (SELECT prescription_id FROM prescriptions WHERE patient_id = ?)");
+            PreparedStatement psPM = DBConnection.conn.prepareStatement("DELETE FROM prescription_medicines WHERE prescription_id IN (SELECT prescription_id FROM prescriptions WHERE patient_id = ? OR visit_id IN (SELECT appointment_id FROM appointments WHERE patient_id = ?))");
             psPM.setInt(1, patientId);
+            psPM.setInt(2, patientId);
             psPM.executeUpdate();
             psPM.close();
 
             // Delete prescriptions
-            PreparedStatement psPresc = DBConnection.conn.prepareStatement("DELETE FROM prescriptions WHERE patient_id = ?");
+            PreparedStatement psPresc = DBConnection.conn.prepareStatement("DELETE FROM prescriptions WHERE patient_id = ? OR visit_id IN (SELECT appointment_id FROM appointments WHERE patient_id = ?)");
             psPresc.setInt(1, patientId);
+            psPresc.setInt(2, patientId);
             psPresc.executeUpdate();
             psPresc.close();
 

@@ -1,9 +1,5 @@
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.LinkedHashSet;
-import java.util.Scanner;
-import java.util.Set;
+import java.sql.*;
+import java.util.*;
 
 public class DietPlan {
     String disease = "";
@@ -364,37 +360,5 @@ public class DietPlan {
         }
 
         displayDietPlanForPatient(patientId);
-    }
-
-    public void updateDiet() throws Exception {
-        Scanner sc = new Scanner(System.in);
-
-        int dietId = 0;
-        while (true) {
-            System.out.print("👉 Enter Diet ID to update: ");
-            try {
-                dietId = Integer.parseInt(sc.nextLine().trim());
-                if (dietId > 0) {
-                    break;
-                }
-                System.out.println("⚠️ Error: Diet ID must be a positive integer.");
-            } catch (NumberFormatException e) {
-                System.out.println("⚠️ Error: Invalid number format. Please enter an integer.");
-            }
-        }
-
-        System.out.print("🍛 Enter New Dinner: ");
-        String din = sc.nextLine();
-
-        if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
-            DBConnection.initialize();
-        }
-        CallableStatement stmt = DBConnection.conn.prepareCall("{call UpdateDietPlan(?, ?)}");
-        stmt.setInt(1, dietId);
-        stmt.setString(2, din);
-        stmt.execute();
-        stmt.close();
-        System.out.println("✅ Diet plan dinner updated successfully.");
-        Main.logActivity(1, "UPDATE", "diet_plan");
     }
 }

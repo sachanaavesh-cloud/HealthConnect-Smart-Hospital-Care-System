@@ -264,8 +264,15 @@ public class Main {
                 d.viewLiveQueue();
                 break;
             case "8":
-                System.out.print("👉 Enter availability string (e.g. Mon-Fri 9AM-2PM): ");
-                String avail = sc.nextLine();
+                String avail = "";
+                while (true) {
+                    System.out.print("👉 Enter availability string (e.g. Mon-Fri 9AM-2PM): ");
+                    avail = sc.nextLine().trim();
+                    if (!avail.isEmpty()) {
+                        break;
+                    }
+                    System.out.println("⚠️ Error: Availability cannot be empty.");
+                }
                 if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
                     DBConnection.initialize();
                 }

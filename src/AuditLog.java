@@ -1,8 +1,5 @@
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.Scanner;
-import java.util.Stack;
+import java.sql.*;
+import java.util.*;
 
 public class AuditLog {
     static class LogEntry {
@@ -22,51 +19,6 @@ public class AuditLog {
     }
 
     Stack<LogEntry> logStack = new Stack<>();
-
-    int logId = 0;
-    User user = new User();
-    String action = "";
-    String module = "";
-    String logDate = "";
-    String logTime = "";
-    String description = "";
-
-    public void createLog() throws Exception {
-        Scanner sc = new Scanner(System.in);
-        System.out.println("\n📜 --- Create Manual Audit Log ---");
-
-        int uId = 0;
-        while (true) {
-            System.out.print("👉 Enter User ID: ");
-            try {
-                uId = Integer.parseInt(sc.nextLine().trim());
-                if (uId > 0) {
-                    break;
-                }
-                System.out.println("⚠️ Error: User ID must be a positive integer.");
-            } catch (NumberFormatException e) {
-                System.out.println("⚠️ Error: Invalid number format. Please enter an integer.");
-            }
-        }
-
-        System.out.print("👉 Enter Operation (INSERT/UPDATE/DELETE): ");
-        String op = sc.nextLine();
-        System.out.print("👉 Enter Table/Module Name: ");
-        String table = sc.nextLine();
-
-        if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
-            DBConnection.initialize();
-        }
-        PreparedStatement ps = DBConnection.conn.prepareStatement("INSERT INTO audit_log(user_id, operation, table_name, timestamp) VALUES (?, ?, ?, NOW())");
-        ps.setInt(1, uId);
-        ps.setString(2, op);
-        ps.setString(3, table);
-        ps.executeUpdate();
-        ps.close();
-
-        logStack.push(new LogEntry(0, uId, op, table, "Just Now"));
-        System.out.println("✅ Audit log created successfully.");
-    }
 
     public void viewLogs() throws Exception {
         System.out.println("\n📜 --- System Audit Logs (Last 50 entries) ---");

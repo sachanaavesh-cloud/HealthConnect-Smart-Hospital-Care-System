@@ -2,8 +2,6 @@ import java.sql.*;
 import java.util.*;
 
 public class QueueManager {
-    Queue<Appointment> queue = new PriorityQueue<>();
-
     public void addPatient() throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n🚦 --- Add Patient to Queue ---");

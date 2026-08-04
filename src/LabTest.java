@@ -4,15 +4,6 @@ import java.util.*;
 // Manages lab test booking, result updates, report viewing, and status management.
 public class LabTest {
     int labTestId = 0;
-    Patient patient = new Patient();
-    Doctor doctor = new Doctor();
-    Appointment appointment = new Appointment();
-    String testName = "";
-    String testResult = "";
-    String normalRange = "";
-    String status = "";
-    String testDate = "";
-    String remarks = "";
 
 // Books a new lab test for a patient.
     public void bookLabTest() throws Exception {
@@ -150,17 +141,6 @@ public class LabTest {
         }
         rs.close();
         stmt.close();
-    }
-
-    // Simulates downloading the selected lab test report.
-    public void downloadReport() {
-        if (this.labTestId == 0) {
-            System.out.println("⚠️ No active lab test loaded. Please view one first.");
-            return;
-        }
-        System.out.println("⚙️ Downloading lab report PDF...");
-        System.out.println("📂 Saved file to: /Users/manavvora/Downloads/LabReport_" + this.labTestId + ".pdf");
-        System.out.println("📥 Download complete!");
     }
 
     // Updates the status of a lab test.

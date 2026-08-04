@@ -6,8 +6,7 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Scanner;
+import java.util.*;
 
 public class User {
     int userId = 0;
@@ -32,6 +31,13 @@ public class User {
         stmt.setString(2, pwd);
         ResultSet rs = stmt.executeQuery();
         if (rs.next()) {
+            String userStatus = rs.getString("status");
+            if ("Inactive".equalsIgnoreCase(userStatus)) {
+                System.out.println("❌ Your account is inactive. Access denied.");
+                rs.close();
+                stmt.close();
+                return;
+            }
             this.userId = rs.getInt("user_id");
             this.email = rs.getString("username");
             this.role = rs.getString("role");

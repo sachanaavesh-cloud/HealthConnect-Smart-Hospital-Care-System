@@ -1,7 +1,5 @@
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.Scanner;
+import java.sql.*;
+import java.util.*;
 
 public class Doctor extends User {
     String specialization = "";
@@ -241,48 +239,6 @@ public class Doctor extends User {
 
     public void createDietPlan() throws Exception {
         new DietPlan().generateDiet();
-    }
-
-    public void replyPatient() throws Exception {
-        Scanner sc = new Scanner(System.in);
-        System.out.println("\n💬 --- Patient Discussions ---");
-
-        int patientId = 0;
-        while (true) {
-            System.out.print("👉 Enter Patient ID: ");
-            try {
-                patientId = Integer.parseInt(sc.nextLine().trim());
-                if (patientId > 0) {
-                    break;
-                }
-                System.out.println("⚠️ Error: Patient ID must be a positive integer.");
-            } catch (NumberFormatException e) {
-                System.out.println("⚠️ Error: Invalid number format. Please enter an integer.");
-            }
-        }
-
-        System.out.print("💬 Enter Message: ");
-        String msg = sc.nextLine();
-
-        System.out.print("📅 Enter Next Visit Date (YYYY-MM-DD, or leave empty for none): ");
-        String nextVisitInput = sc.nextLine().trim();
-
-        int doctorId = getDoctorIdByUserId(this.userId);
-        if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
-            DBConnection.initialize();
-        }
-        CallableStatement stmt = DBConnection.conn.prepareCall("{call SendMessage(?, ?, ?, ?)}");
-        stmt.setInt(1, patientId);
-        stmt.setInt(2, doctorId);
-        stmt.setString(3, msg);
-        if (nextVisitInput.isEmpty()) {
-            stmt.setNull(4, java.sql.Types.DATE);
-        } else {
-            stmt.setString(4, nextVisitInput);
-        }
-        stmt.execute();
-        stmt.close();
-        System.out.println("✅ Reply sent successfully.");
     }
 
     public void viewDashboard() throws Exception {
