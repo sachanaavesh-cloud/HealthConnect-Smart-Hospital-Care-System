@@ -260,27 +260,7 @@ public class Patient extends User {
 
     public void viewDietPlan() throws Exception {
         int patientId = getPatientIdByUserId(this.userId);
-        if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
-            DBConnection.initialize();
-        }
-        CallableStatement stmt = DBConnection.conn.prepareCall("{call ViewDietPlans(?)}");
-        stmt.setInt(1, patientId);
-        ResultSet rs = stmt.executeQuery();
-        System.out.println("\n🥗 --- Diet Plan ---");
-        boolean found = false;
-        while (rs.next()) {
-            found = true;
-            System.out.println("🍳 Breakfast   : " + rs.getString("breakfast"));
-            System.out.println("🍲 Lunch       : " + rs.getString("lunch"));
-            System.out.println("🍛 Dinner      : " + rs.getString("dinner"));
-            System.out.println("📝 Instructions: " + rs.getString("instructions"));
-            System.out.println("----------------------------------------");
-        }
-        if (!found) {
-            System.out.println("📭 No diet plan assigned.");
-        }
-        rs.close();
-        stmt.close();
+        new DietPlan().displayDietPlanForPatient(patientId);
     }
 
     public void viewReports() throws Exception {
