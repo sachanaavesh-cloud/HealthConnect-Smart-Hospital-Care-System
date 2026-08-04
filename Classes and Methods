@@ -1,564 +1,218 @@
-# 🏥 HealthConnect – Smart AI Government Healthcare Management System
-
-> ## 📚 Object-Oriented Class Design
-
----
-
-# 👤 1. User *(Parent Class)*
-
-> Represents every user in the system.
-
-### 📌 Attributes
-
-```java
-int userId;
-String name;
-String email;
-String password;
-String phone;
-String role;
-```
-
-### ⚙️ Methods
-
-```java
-login();
-logout();
-updateProfile();
-changePassword();
-```
-
----
-
-# 🧑‍⚕️ 2. Patient *(extends User)*
-
-### 📌 Attributes
-
-```java
-String healthId;
-String bloodGroup;
-String allergies;
-String emergencyContact;
-```
-
-### ⚙️ Methods
-
-```java
-bookAppointment();
-viewMedicalHistory();
-viewPrescription();
-viewDietPlan();
-viewReports();
-viewDashboard();
-```
-
----
-
-# 👨‍⚕️ 3. Doctor *(extends User)*
-
-### 📌 Attributes
-
-```java
-String specialization;
-int experience;
-boolean available;
-```
-
-### ⚙️ Methods
-
-```java
-viewAppointments();
-createReport();
-createPrescription();
-createDietPlan();
-replyPatient();
-viewDashboard();
-```
-
----
-
-# 🛡️ 4. Admin *(extends User)*
-
-### 📌 Attributes
-
-```java
-String designation;
-String accessLevel;
-```
-
-### ⚙️ Methods
-
-```java
-addDoctor();
-removeDoctor();
-addPatient();
-removePatient();
-manageUsers();
-manageAppointments();
-viewSystemReports();
-manageBilling();
-viewFeedback();
-```
-
----
-
-# 📅 5. Appointment
-
-### 📌 Attributes
-
-```java
-int appointmentId;
-Patient patient;
-Doctor doctor;
-Date appointmentDate;
-String status;
-```
-
-### ⚙️ Methods
-
-```java
-bookAppointment();
-cancelAppointment();
-updateStatus();
-getDetails();
-```
-
----
-
-# 🚦 6. QueueManager
-
-> Handles Smart Queue Management.
-
-### 📌 Attributes
-
-```java
-Queue<Appointment> queue;
-```
-
-### ⚙️ Methods
-
-```java
-generateToken();
-addPatient();
-removePatient();
-displayQueue();
-calculateWaitingTime();
-prioritizeEmergency();
-```
-
----
-
-# 📋 7. MedicalRecord
-
-> Stores complete patient medical history.
-
-### 📌 Attributes
-
-```java
-Patient patient;
-String diagnosis;
-String allergies;
-String history;
-```
-
-### ⚙️ Methods
-
-```java
-addRecord();
-updateRecord();
-viewRecord();
-```
-
----
-
-# 📝 8. Report
-
-> Doctor's medical report.
-
-### 📌 Attributes
-
-```java
-int reportId;
-String diagnosis;
-String notes;
-String temperature;
-String bloodPressure;
-```
-
-### ⚙️ Methods
-
-```java
-generateReport();
-downloadPDF();
-viewReport();
-```
-
----
-
-# 💊 9. Prescription
-
-### 📌 Attributes
-
-```java
-String medicine;
-String dosage;
-String duration;
-String instructions;
-```
-
-### ⚙️ Methods
-
-```java
-addMedicine();
-updateMedicine();
-viewPrescription();
-downloadPDF();
-```
-
----
-
-# 🥗 10. DietPlan
-
-### 📌 Attributes
-
-```java
-String disease;
-String breakfast;
-String lunch;
-String dinner;
-String avoidFoods;
-```
-
-### ⚙️ Methods
-
-```java
-generateDiet();
-viewDiet();
-updateDiet();
-```
-
----
-
-# 💬 11. Discussion
-
-> Doctor–Patient Communication
-
-### 📌 Attributes
-
-```java
-Appointment appointment;
-String message;
-Date time;
-```
-
-### ⚙️ Methods
-
-```java
-sendMessage();
-viewConversation();
-uploadReport();
-sharePDF();
-```
-
----
-
-# ⏰ 12. Reminder
-
-> Medicine & Follow-up Reminder
-
-### 📌 Attributes
-
-```java
-Date reminderDate;
-String type;
-String message;
-```
-
-### ⚙️ Methods
-
-```java
-createReminder();
-sendReminder();
-markCompleted();
-```
-
----
-
-# 🏥 13. Hospital
-
-### 📌 Attributes
-
-```java
-String hospitalName;
-String address;
-```
-
-### ⚙️ Methods
-
-```java
-displayHospital();
-```
-
----
-
-# 💊 14. Pharmacy
-
-### 📌 Attributes
-
-```java
-String pharmacyName;
-String address;
-```
-
-### ⚙️ Methods
-
-```java
-displayPharmacy();
-```
-
----
-
-# 🔍 15. DoctorFinder
-
-### ⚙️ Methods
-
-```java
-searchBySpecialization();
-searchAvailableDoctors();
-bookDoctor();
-```
-
----
-
-# 📊 16. Dashboard
-
-### ⚙️ Methods
-
-```java
-showPatientDashboard();
-showDoctorDashboard();
-```
-
----
-
-# 🆔 17. HealthIDGenerator
-
-### ⚙️ Methods
-
-```java
-generateHealthID();
-verifyHealthID();
-```
-
----
-
-# 🚀 18. Main
-
-### ⚙️ Methods
-
-```java
-main();
-showMenu();
-```
-
----
-
-# 💳 19. Billing
-
-### 📌 Attributes
-
-```java
-int billId;
-Patient patient;
-Appointment appointment;
-double consultationFee;
-double labCharges;
-double medicineCharges;
-double otherCharges;
-double totalAmount;
-String paymentStatus;
-String paymentMethod;
-Date billDate;
-```
-
-### ⚙️ Methods
-
-```java
-generateBill();
-calculateTotal();
-makePayment();
-downloadBill();
-viewBill();
-```
-
----
-
-# ⭐ 20. Feedback
-
-### 📌 Attributes
-
-```java
-int feedbackId;
-Patient patient;
-Doctor doctor;
-Appointment appointment;
-int rating;
-String comments;
-Date feedbackDate;
-```
-
-### ⚙️ Methods
-
-```java
-submitFeedback();
-updateFeedback();
-viewFeedback();
-deleteFeedback();
-calculateAverageRating();
-```
-
----
-
-# 🧪 21. LabTest
-
-> Handles laboratory test requests and reports.
-
-### 📌 Attributes
-
-```java
-int labTestId;
-Patient patient;
-Doctor doctor;
-Appointment appointment;
-String testName;
-String testResult;
-String normalRange;
-String status;
-Date testDate;
-String remarks;
-```
-
-### ⚙️ Methods
-
-```java
-bookLabTest();
-updateResult();
-viewResult();
-downloadReport();
-updateStatus();
-```
-
----
-
-# 📜 22. AuditLog
-
-> Records all important system activities.
-
-### 📌 Attributes
-
-```java
-int logId;
-User user;
-String action;
-String module;
-Date logDate;
-String logTime;
-String description;
-```
-
-### ⚙️ Methods
-
-```java
-createLog();
-viewLogs();
-searchLogs();
-deleteOldLogs();
-```
-
----
-
-# 🌳 Inheritance Structure
-
-```text
-                   User
-                /    |    \
-               /     |     \
-        Patient   Doctor   Admin
-```
-
-> ✅ Only one inheritance hierarchy is required.
-
----
-
-# 📚 Complete Class List
-
-| Class                | Purpose                |
-| -------------------- | ---------------------- |
-| 👤 User              | Parent Class           |
-| 🧑‍⚕️ Patient        | Child Class            |
-| 👨‍⚕️ Doctor         | Child Class            |
-| 🛡️ Admin            | Child Class            |
-| 📅 Appointment       | Appointment Booking    |
-| 🚦 QueueManager      | Smart Queue            |
-| 📋 MedicalRecord     | Patient History        |
-| 📝 Report            | Doctor Report          |
-| 💊 Prescription      | Medicines              |
-| 🥗 DietPlan          | Diet Recommendation    |
-| 💬 Discussion        | Doctor–Patient Chat    |
-| ⏰ Reminder           | Medicine & Follow-up   |
-| 🏥 Hospital          | Nearby Hospital Search |
-| 💊 Pharmacy          | Nearby Pharmacy Search |
-| 🔍 DoctorFinder      | Search Doctor          |
-| 📊 Dashboard         | Dashboard Module       |
-| 🆔 HealthIDGenerator | Health ID Generation   |
-| 💳 Billing           | Billing & Payments     |
-| ⭐ Feedback           | Patient Ratings        |
-| 🧪 LabTest           | Laboratory Tests       |
-| 📜 AuditLog          | System Logs            |
-| 🚀 Main              | Driver Class           |
-
-> **📦 Total Classes = 22**
-
----
-
-# 💻 Data Structures Used
-
-| Feature                      | Data Structure                              |
-| ---------------------------- | ------------------------------------------- |
-| 🚦 Smart Queue               | `PriorityQueue<Appointment>`                |
-| 💬 Doctor–Patient Discussion | `ArrayList<String>` or `ArrayList<Message>` |
-| 📋 Medical History           | `ArrayList<MedicalRecord>`                  |
-| 📝 Reports                   | `ArrayList<Report>`                         |
-| 💊 Prescriptions             | `ArrayList<Prescription>`                   |
-| 🥗 Diet Plans                | `ArrayList<DietPlan>`                       |
-| ⏰ Reminders                  | `ArrayList<Reminder>`                       |
-| 🔍 Doctor Finder             | `ArrayList<Doctor>` with filtering          |
-
----
-
-# 🎯 OOP Concepts Used
-
-* ✅ Inheritance
-* ✅ Encapsulation
-* ✅ Abstraction
-* ✅ Polymorphism
-* ✅ Composition
-* ✅ Association
-
----
-
-# 📌 Project Summary
-
-| Property                   | Value                                                            |
-| -------------------------- | ---------------------------------------------------------------- |
-| **Project Name**           | HealthConnect – Smart AI Government Healthcare Management System |
-| **Language**               | Java                                                             |
-| **Database**               | MySQL                                                            |
-| **IDE**                    | IntelliJ IDEA                                                    |
-| **Total Classes**          | **22**                                                           |
-| **Inheritance Levels**     | **1**                                                            |
-| **Primary Data Structure** | `PriorityQueue`                                                  |
-| **Collections Used**       | `ArrayList`, `Queue`, `PriorityQueue`                            |
-| **Programming Paradigm**   | Object-Oriented Programming (OOP)                                |
-
-> 💡 **Tip for Notion:** Turn each class heading into a **Toggle Heading** (`/toggle heading`) so you can collapse and expand each class while studying or presenting your project. This keeps your notes clean and easy to navigate.
+1. Core & User Management Modules
+👨‍💼 1. User (Base Class)
+Purpose: Represents generic user account entity and authentication routines.
+
+Attributes (Fields):
+int userId — Unique user identifier
+String name — Full name of the user
+String email — Registered email/username
+String password — Login password credential
+String phone — Contact phone number
+String role — User system role (Patient, Doctor, Admin)
+Methods:
+login(): void — Authenticates user credentials against the database
+logout(): void — Ends active session and updates logout timestamp
+updateProfile(): void — Edits user account details (name, phone, etc.)
+changePassword(): void — Changes and updates current password
+downloadPatientHistory(): void — Exports complete patient medical summary to text file
+🩺 2. Patient (Extends User)
+Purpose: Manages patient-specific profiles, appointment bookings, queue tracking, and personal medical records.
+
+Attributes (Fields):
+int patientId — Unique patient ID
+String gender — Patient gender
+int age — Patient age in years
+String bloodGroup — Blood group
+String address — Residential address
+String healthId — Unique Health ID badge (HCXXXXX)
+Methods:
+loadPatientDetails(): void — Fetches profile information from database
+getPatientId(): int — Returns current patient ID
+bookAppointment(): void — Schedules appointment with a specific doctor
+viewMedicalHistory(): void — Displays past medical history entries
+viewPrescription(): void — Displays prescribed medications and instructions
+viewDietPlan(): void — Views active custom diet plan
+viewReports(): void — Displays generated lab test reports
+viewDashboard(): void — Displays patient dashboard metrics
+displayQueueStatus(): void — Checks live doctor queue position & estimated waiting time (peopleAhead * 15 mins)
+👨‍⚕️ 3. Doctor (Extends User)
+Purpose: Handles doctor profile management, appointment views, patient treatments, prescriptions, and diet plans.
+
+Attributes (Fields):
+String specialization — Medical domain/specialty
+int experience — Years of clinical experience
+boolean available — Availability status (true/false)
+Methods:
+loadDoctorDetails(): void — Loads doctor details and consultation hours
+getDoctorId(): int — Returns current doctor ID
+viewAppointments(): void — Displays scheduled appointments categorized into Today, Upcoming, and Past
+createReport(): void — Diagnoses patient and creates medical report
+createPrescription(): void — Prescribes medicines and dosage instructions
+createDietPlan(): void — Formulates disease-specific diet plans for patients
+showFollowUpsAndReply(): void — Reviews patient follow-up queries and submits doctor replies
+showNextAppointment(): void — Displays the next token/appointment in queue
+viewLiveQueue(): void — Views doctor’s active waiting queue sorted by priority
+viewDashboard(): void — Displays doctor dashboard analytics
+⚙️ 4. Admin (Extends User)
+Purpose: Provides administrative control over doctors, patients, appointments, billing, system reports, and feedback.
+
+Attributes (Fields):
+(Inherits all attributes from User)
+Methods:
+addDoctor(): void — Registers a new doctor into the system with validation
+removeDoctor(): void — Removes a doctor and cleans up associated records
+addPatient(): void — Registers a new patient into the hospital
+removePatient(): void — Deletes patient profile and linked records
+manageUsers(): void — Manages account activation and profile edits
+manageAppointments(): void — Views, updates status, or reschedules appointments
+manageBilling(): void — Generates and processes patient bills
+viewSystemReports(): void — Displays analytics on total patients, appointments, and revenues
+viewFeedback(): void — Reviews submitted patient feedback and ratings
+2. Patient Queue & Notification Modules
+🚦 5. QueueManager
+Purpose: Controls live OPD patient queueing, priority assignment, queue removal, and per-doctor waiting time calculations.
+
+Attributes (Fields):
+(Interacts with queue database table and live scanner input)
+Methods:
+addPatient(): void — Adds patient into active waiting queue with priority (Emergency, Senior, Normal, etc.)
+removePatient(): void — Removes patient from queue upon treatment completion
+displayQueue(): void — Views entire system live waiting queue
+displayQueue(int doctorId): void — Displays doctor-specific queue sorted by priority & arrival
+calculateWaitingTime(): void — Validates Queue ID and estimates waiting time per doctor ($N \times 15\text{ mins}$)
+prioritizeEmergency(): void — Elevates patient queue status to Emergency
+⏰ 6. Reminder
+Purpose: Manages active reminders for patient appointments, medicine schedules, and vaccination alerts.
+
+Attributes (Fields):
+(Interacts with reminders table)
+Methods:
+sendReminder(): void — Displays pending active reminders for a patient
+markCompleted(): void — Validates Reminder ID and marks reminder status as completed (Sent)
+3. Clinical & Auxiliary Services Modules
+📋 7. MedicalRecord
+Purpose: Represents patient medical history entries and diagnosis records.
+
+Attributes (Fields):
+public int historyId — Medical history record ID
+public int patientId — Associated patient ID
+public String disease — Diagnosed condition/disease name
+public String description — Detailed clinical description/notes
+Methods:
+MedicalRecord() — Default constructor
+MedicalRecord(int, int, String, String) — Parameterized constructor
+addRecord(): void — Appends a new medical history record
+updateRecord(): void — Updates existing record description
+viewRecord(): void — Displays history records
+fetchMedicalHistoryList(int): LinkedList<MedicalRecord> — Fetches medical history list into data structure
+🥗 8. DietPlan
+Purpose: Generates smart nutritional meal plans tailored to specific patient medical conditions.
+
+Attributes (Fields):
+String disease — Target medical condition (e.g., Diabetes, Hypertension)
+String breakfast — Recommended breakfast items
+String lunch — Recommended lunch meal
+String snacks — Evening snack options
+String dinner — Recommended dinner meal
+String water — Recommended daily fluid intake
+String avoidFoods — Foods to avoid
+Methods:
+generateDiet(): void — Creates and saves customized diet plan
+viewDietPlan(): void — Displays active patient diet plan
+🧪 9. LabTest
+Purpose: Manages diagnostic laboratory test bookings, results, and report generation.
+
+Attributes (Fields):
+int labTestId — Unique lab test record ID
+Methods:
+bookLabTest(): void — Schedules a new lab test
+updateResult(): void — Uploads test results and diagnosis
+viewReport(): void — Displays completed lab test report
+manageLabTests(): void — Admin/Doctor lab test control panel
+💊 10. Pharmacy
+Purpose: Displays hospital pharmacy info and manages medicine inventory stock.
+
+Attributes (Fields):
+String pharmacyName — Pharmacy name
+String address — Hospital pharmacy location/address
+Methods:
+displayPharmacy(): void — Displays pharmacy location, medicine stock, expiry dates, and unit prices
+🔍 11. DoctorFinder
+Purpose: Assists patients in finding available doctors filtered by specialty.
+
+Attributes (Fields):
+(Utility query class)
+Methods:
+searchBySpecialization(): void — Searches and lists doctors by domain (Cardiology, Pediatrics, etc.)
+4. Finance & Communication Modules
+💳 12. Billing
+Purpose: Handles hospital invoice generation, fee payments, and downloadable receipt generation.
+
+Attributes (Fields):
+int billId — Billing invoice ID
+int patientId — Associated patient ID
+double amount — Total bill amount
+String paymentMode — Mode (Cash, UPI, Card)
+String status — Payment status (Pending/Paid)
+Methods:
+makePayment(): void — Processes patient fee payment
+viewBill(): void — Displays itemized bill details
+downloadBill(): void — Exports payment receipt text file
+⭐ 13. Feedback
+Purpose: Collects patient ratings, reviews, and feedback for attending doctors.
+
+Attributes (Fields):
+(Interacts with feedback table)
+Methods:
+submitFeedback(): void — Submits rating (1–5 stars) and comments for a doctor
+💬 14. Discussion
+Purpose: Facilitates direct messaging and follow-up communication between patients and doctors.
+
+Attributes (Fields):
+(Interacts with discussion table)
+Methods:
+sendMessage(): void — Sends a message query to doctor
+viewConversation(): void — Displays complete message thread between patient and doctor
+5. Infrastructure & System Utilities
+📊 15. Dashboard
+Purpose: Renders quick statistical summary widgets for patients and doctors upon login.
+
+Attributes (Fields):
+(Queries live database stats)
+Methods:
+showPatientDashboard(): void — Displays appointments, pending reminders, and unpaid bills for patient
+showDoctorDashboard(): void — Displays today’s appointments, waiting queue size, and average doctor rating
+🏥 16. Hospital
+Purpose: Holds static hospital metadata and displays active departments.
+
+Attributes (Fields):
+String hospitalName — Hospital name
+String address — Hospital location address
+Methods:
+displayHospital(): void — Displays hospital contact details, emergency helpline numbers, and floor department directory
+📜 17. AuditLog
+Purpose: Tracks system activities using data structures (Stack) for administrative compliance.
+
+Attributes (Fields):
+Stack<LogEntry> logStack — In-memory stack of recent operational activities
+(Inner Class LogEntry: logId, userId, operation, tableName, timestamp)
+Methods:
+viewLogs(): void — Displays recent database operations (INSERT, UPDATE, DELETE) for security audits
+🔌 18. DBConnection
+Purpose: Singleton database connector establishing JDBC connection to MySQL database.
+
+Attributes (Fields):
+private static final String url — MySQL JDBC URL (jdbc:mysql://localhost:3307/HealthConnect)
+private static final String username — Database user (root)
+private static final String password — Database password
+public static Connection conn — Active SQL Connection instance
+Methods:
+public static void initialize(): void — Initializes or re-opens database connection if closed
+🚀 19. Main
+Purpose: Application entry point hosting interactive console menus and navigation routing for Patients, Doctors, and Admins.
+
+Attributes (Fields):
+public static User loggedInUser — Currently authenticated user session instance
+Methods:
+public static void main(String[] args): void — System entry point driving main execution loop
+public static void logActivity(int userId, String operation, String tableName): void — Logs administrative/user activity into database and audit log

@@ -52,25 +52,79 @@ public class Doctor extends User {
         CallableStatement stmt = DBConnection.conn.prepareCall("{call GetDoctorAppointments(?)}");
         stmt.setInt(1, doctorId);
         ResultSet rs = stmt.executeQuery();
-        System.out.println("\n📅 --- Today's Appointments ---");
-        boolean found = false;
+        List<Map<String, Object>> todayList = new ArrayList<>();
+        List<Map<String, Object>> upcomingList = new ArrayList<>();
+        List<Map<String, Object>> pastList = new ArrayList<>();
+        java.time.LocalDate todayDate = java.time.LocalDate.now();
+
         while (rs.next()) {
-            found = true;
-            System.out.println("🔑 Appointment ID: " + rs.getInt("appointment_id"));
-            System.out.println("🧑‍⚕️ Patient ID    : " + rs.getInt("patient_id"));
-            System.out.println("📅 Date          : " + rs.getString("appointment_date"));
-            System.out.println("⏰ Time          : " + rs.getString("appointment_time"));
-            System.out.println("🚦 Status        : " + rs.getString("status"));
-            System.out.println("🎟️ Token Number  : " + rs.getInt("token_number"));
-            System.out.println("🚨 Priority      : " + rs.getString("priority"));
-            System.out.println("💬 Remarks       : " + rs.getString("remarks"));
-            System.out.println("----------------------------------------");
-        }
-        if (!found) {
-            System.out.println("📭 No appointments scheduled.");
+            Map<String, Object> map = new HashMap<>();
+            map.put("appointment_id", rs.getInt("appointment_id"));
+            map.put("patient_id", rs.getInt("patient_id"));
+            java.sql.Date d = rs.getDate("appointment_date");
+            map.put("appointment_date", d != null ? d.toString() : "");
+            map.put("appointment_time", rs.getString("appointment_time"));
+            map.put("status", rs.getString("status"));
+            map.put("token_number", rs.getInt("token_number"));
+            map.put("priority", rs.getString("priority"));
+            map.put("remarks", rs.getString("remarks"));
+
+            if (d != null) {
+                java.time.LocalDate appLocalDate = d.toLocalDate();
+                if (appLocalDate.equals(todayDate)) {
+                    todayList.add(map);
+                } else if (appLocalDate.isAfter(todayDate)) {
+                    upcomingList.add(map);
+                } else if (appLocalDate.isBefore(todayDate)) {
+                    pastList.add(map);
+                }
+            }
         }
         rs.close();
         stmt.close();
+
+        System.out.println("\n📅 ====================================");
+        System.out.println("       SCHEDULED APPOINTMENTS          ");
+        System.out.println("====================================");
+
+        System.out.println("\n📌 --- TODAY'S APPOINTMENTS ---");
+        if (todayList.isEmpty()) {
+            System.out.println("📭 No appointments scheduled for today.");
+        } else {
+            for (Map<String, Object> item : todayList) {
+                printAppointmentItem(item);
+            }
+        }
+
+        System.out.println("\n🚀 --- UPCOMING APPOINTMENTS ---");
+        if (upcomingList.isEmpty()) {
+            System.out.println("📭 No upcoming appointments scheduled.");
+        } else {
+            for (Map<String, Object> item : upcomingList) {
+                printAppointmentItem(item);
+            }
+        }
+
+        System.out.println("\n📜 --- PAST APPOINTMENTS ---");
+        if (pastList.isEmpty()) {
+            System.out.println("📭 No past appointments found.");
+        } else {
+            for (Map<String, Object> item : pastList) {
+                printAppointmentItem(item);
+            }
+        }
+    }
+
+    private void printAppointmentItem(Map<String, Object> item) {
+        System.out.println("🔑 Appointment ID: " + item.get("appointment_id"));
+        System.out.println("🧑‍⚕️ Patient ID    : " + item.get("patient_id"));
+        System.out.println("📅 Date          : " + item.get("appointment_date"));
+        System.out.println("⏰ Time          : " + item.get("appointment_time"));
+        System.out.println("🚦 Status        : " + item.get("status"));
+        System.out.println("🎟️ Token Number  : " + item.get("token_number"));
+        System.out.println("🚨 Priority      : " + item.get("priority"));
+        System.out.println("💬 Remarks       : " + item.get("remarks"));
+        System.out.println("----------------------------------------");
     }
 
     public void createReport() throws Exception {

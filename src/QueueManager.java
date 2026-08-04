@@ -183,12 +183,35 @@ public class QueueManager {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
         }
-        CallableStatement stmt = DBConnection.conn.prepareCall("{? = call CalculateWaitingTime(?)}");
-        stmt.registerOutParameter(1, Types.INTEGER);
-        stmt.setInt(2, queueId);
-        stmt.execute();
-        int time = stmt.getInt(1);
-        stmt.close();
+        PreparedStatement checkPs = DBConnection.conn.prepareStatement("SELECT queue_id FROM queue WHERE queue_id = ?");
+        checkPs.setInt(1, queueId);
+        ResultSet checkRs = checkPs.executeQuery();
+        if (!checkRs.next()) {
+            System.out.println("⚠️ Error: Queue ID " + queueId + " does not exist. Please insert a valid Queue ID.");
+            checkRs.close();
+            checkPs.close();
+            return;
+        }
+        checkRs.close();
+        checkPs.close();
+        PreparedStatement psPos = DBConnection.conn.prepareStatement(
+                "SELECT COUNT(*) FROM queue q1 " +
+                        "JOIN queue q2 ON q2.queue_id = ? " +
+                        "WHERE q1.doctor_id = q2.doctor_id AND q1.status IN ('Waiting', 'In-progress') " +
+                        "AND (FIELD(q1.priority_level, 'Emergency','Pregnant','Senior Citizen','Child','Disabled','Normal') < FIELD(q2.priority_level, 'Emergency','Pregnant','Senior Citizen','Child','Disabled','Normal') " +
+                        "OR (FIELD(q1.priority_level, 'Emergency','Pregnant','Senior Citizen','Child','Disabled','Normal') = FIELD(q2.priority_level, 'Emergency','Pregnant','Senior Citizen','Child','Disabled','Normal') AND q1.queue_id <= q2.queue_id))"
+        );
+        psPos.setInt(1, queueId);
+        ResultSet rsPos = psPos.executeQuery();
+        int time = 0;
+        if (rsPos.next()) {
+            int pos = rsPos.getInt(1);
+            time = (pos > 0 ? pos : 1) * 15;
+        } else {
+            time = 15;
+        }
+        rsPos.close();
+        psPos.close();
         System.out.println("⏰ Estimated Waiting Time for Queue ID " + queueId + " is: " + time + " minutes.");
     }
 

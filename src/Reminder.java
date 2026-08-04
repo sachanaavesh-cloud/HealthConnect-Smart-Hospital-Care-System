@@ -71,6 +71,37 @@ public class Reminder {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
         }
+        String checkSql;
+        if (Main.loggedInUser instanceof Patient) {
+            checkSql = "SELECT status FROM reminders WHERE reminder_id = ? AND patient_id = ?";
+        } else {
+            checkSql = "SELECT status FROM reminders WHERE reminder_id = ?";
+        }
+
+        PreparedStatement checkPs = DBConnection.conn.prepareStatement(checkSql);
+        checkPs.setInt(1, reminderId);
+        if (Main.loggedInUser instanceof Patient) {
+            checkPs.setInt(2, ((Patient) Main.loggedInUser).getPatientId());
+        }
+
+        ResultSet rs = checkPs.executeQuery();
+        if (!rs.next()) {
+            System.out.println("⚠️ Error: Reminder ID " + reminderId + " does not exist.");
+            rs.close();
+            checkPs.close();
+            return;
+        }
+
+        String currentStatus = rs.getString("status");
+        if ("Sent".equalsIgnoreCase(currentStatus) || "Completed".equalsIgnoreCase(currentStatus)) {
+            System.out.println("⚠️ Error: Reminder ID " + reminderId + " is already marked as completed.");
+            rs.close();
+            checkPs.close();
+            return;
+        }
+
+        rs.close();
+        checkPs.close();
         CallableStatement stmt = DBConnection.conn.prepareCall("{call CompleteReminder(?)}");
         stmt.setInt(1, reminderId);
         stmt.execute();

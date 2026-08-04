@@ -427,19 +427,7 @@ public class Patient extends User {
             }
 
             // 4. Time left for that particular doctor
-            int waitingTime = 0;
-            if (inQueue && queueId != -1) {
-                PreparedStatement psTime = DBConnection.conn.prepareStatement("SELECT CalculateWaitingTime(?)");
-                psTime.setInt(1, queueId);
-                ResultSet rsTime = psTime.executeQuery();
-                if (rsTime.next()) {
-                    waitingTime = rsTime.getInt(1);
-                }
-                rsTime.close();
-                psTime.close();
-            } else {
-                waitingTime = (peopleAhead + 1) * 15; // fallback estimation: 15 mins per ahead patient + self
-            }
+            int waitingTime = peopleAhead * 15;
             System.out.println("⏰ Estimated Waiting Time: " + waitingTime + " minutes");
             System.out.println("----------------------------------------------");
         } else {
