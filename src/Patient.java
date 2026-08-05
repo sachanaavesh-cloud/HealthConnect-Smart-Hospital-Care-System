@@ -1,7 +1,5 @@
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.Scanner;
+import java.sql.*;
+import java.util.*;
 
 public class Patient extends User {
     String healthId = "";
@@ -122,6 +120,11 @@ public class Patient extends User {
                 }
             }
             if (isValid) {
+                java.time.LocalDate appLocalDate = java.time.LocalDate.parse(dateStr);
+                if (appLocalDate.isBefore(java.time.LocalDate.now())) {
+                    System.out.println("⚠️ Error: Appointment date cannot be in the past. Please enter today's date or a future date.");
+                    continue;
+                }
                 break;
             }
             System.out.println("⚠️ Error: Date must be a valid calendar date in YYYY-MM-DD format.");
@@ -362,6 +365,24 @@ public class Patient extends User {
                 System.out.println("🩺 Token Being Treated: " + treatedToken);
             } else {
                 System.out.println("🩺 Token Being Treated: None (No patient is currently in treatment)");
+            }
+
+            // Check if patient has already been served today
+            PreparedStatement psServedCheck = DBConnection.conn.prepareStatement(
+                    "SELECT queue_id FROM queue WHERE patient_id = ? AND doctor_id = ? AND status = 'Served' LIMIT 1"
+            );
+            psServedCheck.setInt(1, patientId);
+            psServedCheck.setInt(2, doctorId);
+            ResultSet rsServedCheck = psServedCheck.executeQuery();
+            boolean isServedToday = rsServedCheck.next();
+            rsServedCheck.close();
+            psServedCheck.close();
+
+            if (isServedToday) {
+                System.out.println("🎉 Status: You have already been served by the doctor today.");
+                System.out.println("⏰ Estimated Waiting Time: 0 minutes");
+                System.out.println("----------------------------------------------");
+                return;
             }
 
             // 3. How much left before me in queue

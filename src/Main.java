@@ -70,6 +70,7 @@ public class Main {
                                 loggedInUser = patient;
                             } else {
                                 loggedInUser = baseUser;
+                                System.out.println("ℹ️ Notice: Your features will be added soon!");
                             }
                         }
                     } else if (opt.equals("2")) {
@@ -96,15 +97,10 @@ public class Main {
         } else if (loggedInUser instanceof Admin) {
             showAdminMenu((Admin) loggedInUser);
         } else {
-            System.out.println("\n⚙️ --- User Menu ---");
-            System.out.println("1. 👤 Update Profile");
-            System.out.println("2. 🔐 Change Password");
-            System.out.println("3. 🚪 Logout");
-            System.out.print("👉 Choose an option: ");
-            String opt = sc.nextLine().trim();
-            if (opt.equals("1")) loggedInUser.updateProfile();
-            else if (opt.equals("2")) loggedInUser.changePassword();
-            else if (opt.equals("3")) loggedInUser.logout();
+            if (loggedInUser != null) {
+                loggedInUser.logout();
+                loggedInUser = null;
+            }
         }
     }
 

@@ -80,18 +80,23 @@ public class LabTest {
             }
         }
 
-        System.out.print("📂 Enter Report PDF/File path: ");
-        String path = sc.nextLine();
-
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
         }
-        CallableStatement stmt = DBConnection.conn.prepareCall("{call UpdateLabResult(?, ?)}");
-        stmt.setInt(1, testId);
-        stmt.setString(2, path);
-        stmt.execute();
-        stmt.close();
-        System.out.println("🎉 Lab result updated successfully!");
+        PreparedStatement checkPs = DBConnection.conn.prepareStatement("SELECT test_id FROM lab_tests WHERE test_id = ?");
+        checkPs.setInt(1, testId);
+        ResultSet checkRs = checkPs.executeQuery();
+        if (!checkRs.next()) {
+            System.out.println("⚠️ Error: Lab Test ID " + testId + " does not exist.");
+            checkRs.close();
+            checkPs.close();
+            return;
+        }
+        checkRs.close();
+        checkPs.close();
+
+        System.out.print("📂 Enter Report PDF/File path: ");
+        String path = sc.nextLine();
     }
 
     // Displays the lab test details and report information for a patient.
@@ -161,12 +166,25 @@ public class LabTest {
             }
         }
 
-        System.out.print("🚦 Enter New Status (Pending/Completed): ");
-        String statusVal = sc.nextLine();
+
 
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
         }
+        PreparedStatement checkPs = DBConnection.conn.prepareStatement("SELECT test_id FROM lab_tests WHERE test_id = ?");
+        checkPs.setInt(1, testId);
+        ResultSet checkRs = checkPs.executeQuery();
+        if (!checkRs.next()) {
+            System.out.println("⚠️ Error: Lab Test ID " + testId + " does not exist.");
+            checkRs.close();
+            checkPs.close();
+            return;
+        }
+        checkRs.close();
+        checkPs.close();
+
+        System.out.print("🚦 Enter New Status (Pending/Completed): ");
+        String statusVal = sc.nextLine();
         CallableStatement stmt = DBConnection.conn.prepareCall("{call UpdateLabStatus(?, ?)}");
         stmt.setInt(1, testId);
         stmt.setString(2, statusVal);

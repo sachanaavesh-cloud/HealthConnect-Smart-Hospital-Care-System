@@ -948,6 +948,18 @@ public class Admin extends User {
                     System.out.println("⚠️ Error: Invalid number format. Please enter an integer.");
                 }
             }
+            PreparedStatement checkAppPs = DBConnection.conn.prepareStatement("SELECT appointment_id FROM appointments WHERE appointment_id = ?");
+            checkAppPs.setInt(1, appId);
+            ResultSet checkAppRs = checkAppPs.executeQuery();
+            if (!checkAppRs.next()) {
+                System.out.println("⚠️ Error: Appointment ID " + appId + " does not exist.");
+                checkAppRs.close();
+                checkAppPs.close();
+                return;
+            }
+            checkAppRs.close();
+            checkAppPs.close();
+
             String status = "";
             while (true) {
                 System.out.println("\n🚦 --- Choose New Status ---");
@@ -1030,6 +1042,11 @@ public class Admin extends User {
                     }
                 }
                 if (isValid) {
+                    java.time.LocalDate newLocalDate = java.time.LocalDate.parse(newDate);
+                    if (newLocalDate.isBefore(java.time.LocalDate.now())) {
+                        System.out.println("⚠️ Error: Rescheduled appointment date cannot be in the past. Please enter today's date or a future date.");
+                        continue;
+                    }
                     break;
                 }
                 System.out.println("⚠️ Error: Date must be a valid calendar date in YYYY-MM-DD format.");

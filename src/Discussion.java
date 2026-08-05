@@ -44,8 +44,33 @@ public class Discussion {
         System.out.print("💬 Enter Message Content: ");
         String msg = sc.nextLine();
 
-        System.out.print("📅 Enter Next Visit Date (YYYY-MM-DD, or leave empty for none): ");
-        String nextVisitInput = sc.nextLine().trim();
+
+        String nextVisitInput = "";
+        while (true) {
+            System.out.print("📅 Enter Next Visit Date (YYYY-MM-DD, or leave empty for none): ");
+            nextVisitInput = sc.nextLine().trim();
+            if (nextVisitInput.isEmpty()) {
+                break;
+            }
+            boolean isValid = true;
+            if (nextVisitInput.length() != 10 || nextVisitInput.charAt(4) != '-' || nextVisitInput.charAt(7) != '-') {
+                isValid = false;
+            } else {
+                try {
+                    java.time.LocalDate visitDate = java.time.LocalDate.parse(nextVisitInput);
+                    if (visitDate.isBefore(java.time.LocalDate.now())) {
+                        System.out.println("⚠️ Error: Next visit date cannot be in the past.");
+                        continue;
+                    }
+                    break;
+                } catch (Exception e) {
+                    isValid = false;
+                }
+            }
+            if (!isValid) {
+                System.out.println("⚠️ Error: Date must be a valid calendar date in YYYY-MM-DD format (or leave empty for none).");
+            }
+        }
 
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();

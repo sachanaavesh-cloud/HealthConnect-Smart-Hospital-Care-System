@@ -46,12 +46,24 @@ public class QueueManager {
             System.out.print("👉 Enter choice (1-6): ");
             String choiceOpt = sc.nextLine().trim();
             switch (choiceOpt) {
-                case "1": priority = "Emergency"; break;
-                case "2": priority = "Pregnant"; break;
-                case "3": priority = "Senior Citizen"; break;
-                case "4": priority = "Child"; break;
-                case "5": priority = "Disabled"; break;
-                case "6": priority = "Normal"; break;
+                case "1":
+                    priority = "Emergency";
+                    break;
+                case "2":
+                    priority = "Pregnant";
+                    break;
+                case "3":
+                    priority = "Senior Citizen";
+                    break;
+                case "4":
+                    priority = "Child";
+                    break;
+                case "5":
+                    priority = "Disabled";
+                    break;
+                case "6":
+                    priority = "Normal";
+                    break;
                 default:
                     System.out.println("⚠️ Error: Invalid option. Please enter a choice between 1 and 6.");
                     break;
@@ -183,7 +195,7 @@ public class QueueManager {
         if (DBConnection.conn == null || DBConnection.conn.isClosed()) {
             DBConnection.initialize();
         }
-        PreparedStatement checkPs = DBConnection.conn.prepareStatement("SELECT queue_id FROM queue WHERE queue_id = ?");
+        PreparedStatement checkPs = DBConnection.conn.prepareStatement("SELECT queue_id, status FROM queue WHERE queue_id = ?");
         checkPs.setInt(1, queueId);
         ResultSet checkRs = checkPs.executeQuery();
         if (!checkRs.next()) {
@@ -192,8 +204,14 @@ public class QueueManager {
             checkPs.close();
             return;
         }
+        String qStatus = checkRs.getString("status");
         checkRs.close();
         checkPs.close();
+
+        if (qStatus != null && (qStatus.equalsIgnoreCase("Served") || qStatus.equalsIgnoreCase("Completed"))) {
+            System.out.println("ℹ️ Notice: Patient for Queue ID " + queueId + " has already been served. Estimated waiting time: 0 minutes.");
+            return;
+        }
         PreparedStatement psPos = DBConnection.conn.prepareStatement(
                 "SELECT COUNT(*) FROM queue q1 " +
                         "JOIN queue q2 ON q2.queue_id = ? " +
