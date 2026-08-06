@@ -135,7 +135,7 @@ public class MedicalRecord {
         // Populate in-memory LinkedList data structure from Database
         LinkedList<MedicalRecord> historyList = fetchMedicalHistoryList(targetPatientId);
 
-        System.out.println("\n📋 --- Medical History Records (Traversing LinkedList) for Patient ID " + targetPatientId + " ---");
+        System.out.println("\n📋 --- Medical History Records for Patient ID " + targetPatientId + " ---");
         if (historyList.isEmpty()) {
             System.out.println("📭 No medical history records found.");
         } else {

@@ -187,17 +187,6 @@ public class Billing {
         System.out.println("🎉 Payment successful! Payment ID " + bId + " is now Paid.");
     }
 
-    // Simulates downloading the currently loaded bill receipt.
-    public void downloadBill() {
-        if (this.billId == 0) {
-            System.out.println("⚠️ No active bill loaded. Please view a bill first.");
-            return;
-        }
-        System.out.println("⚙️ Downloading receipt...");
-        System.out.println("📂 Receipt saved to: /Users/manavvora/Downloads/HealthConnect_Bill_" + this.billId + ".txt");
-        System.out.println("📥 Download complete!");
-    }
-
     // Displays the details of a selected bill for the logged-in patient.
     public void viewBill() throws Exception {
         Scanner sc = new Scanner(System.in);
